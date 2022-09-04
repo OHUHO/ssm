@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/mybatis_dynamicSQL/pom.xml" />
         <option value="$PROJECT_DIR$/mybatis_cache/pom.xml" />
         <option value="$PROJECT_DIR$/mybatis_mbg/pom.xml" />
+        <option value="$PROJECT_DIR$/spring_helloworld/pom.xml" />
       </list>
     </option>
   </component>
