@@ -210,7 +210,6 @@ public interface UserMapper {
 		insert into t_user values(null,'admin','123456',18,'男','jc.jingchao@qq.com')
 	</insert>
 </mapper>
-
 ```
 
 
@@ -1816,25 +1815,261 @@ SqlSession关闭之后，一级缓存中的数据会写入二级缓存
 
 #### ①  添加依赖和插件
 
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.5.10</version>
+    </dependency>
+
+    <!-- junit测试 -->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- log4j日志 -->
+    <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
+    </dependency>
+
+    <!-- mysql驱动 -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.28</version>
+    </dependency>
+
+</dependencies>
+
+<!-- 控制Maven在构建过程中相关配置 -->
+<build>
+
+    <!-- 构建过程中用到的插件 -->
+    <plugins>
+        <plugin>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-maven-plugin</artifactId>
+            <version>1.3.6</version>
+
+            <dependencies>
+                <!-- 插件的依赖 -->
+                <dependency>
+                    <groupId>org.mybatis.generator</groupId>
+                    <artifactId>mybatis-generator-core</artifactId>
+                    <version>1.4.0</version>
+                </dependency>
+
+                <!-- MySQL驱动 -->
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>8.0.28</version>
+                </dependency>
+            </dependencies>
+        </plugin>
+    </plugins>
+</build>
+```
+
 #### ② 创建MyBatis的核心配置文件
 
 #### ③ 创建逆向工具的配置文件
 
+> 文件名称为：generatorConfig.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+		PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+	<!--
+		targetRuntime: 执行生成的逆向工程的版本
+		MyBatis3Simple: 生成基本的CRUD（清新简洁版）
+		MyBatis3: 生成带条件的CRUD（奢华尊享版）
+	-->
+	<context id="DB2Tables" targetRuntime="MyBatis3">
+		<!-- 数据库的连接信息 -->
+		<jdbcConnection
+				driverClass="com.mysql.cj.jdbc.Driver"
+				connectionURL="jdbc:mysql://localhost:3306/ssm?serverTimezone=UTC"
+				userId="root"
+				password="123456">
+		</jdbcConnection>
+		<!-- javaBean的生成策略-->
+		<javaModelGenerator
+				targetPackage="com.jingchao.mybatis.pojo"
+				targetProject=".\src\main\java">
+			<property name="enableSubPackages" value="true"/>
+			<property name="trimStrings" value="true"/>
+		</javaModelGenerator>
+		<!-- SQL映射文件的生成策略 -->
+		<sqlMapGenerator
+				targetPackage="com.jingchao.mybatis.mapper"
+				targetProject=".\src\main\resources">
+			<property name="enableSubPackages" value="true"/>
+		</sqlMapGenerator>
+		<!-- Mapper接口的生成策略 -->
+		<javaClientGenerator
+				type="XMLMAPPER"
+				targetPackage="com.jingchao.mybatis.mapper"
+				targetProject=".\src\main\java">
+			<property name="enableSubPackages" value="true"/>
+		</javaClientGenerator>
+		<!-- 逆向分析的表 -->
+		<!-- tableName设置为*号，可以对应所有表，此时不写domainObjectName -->
+		<!-- domainObjectName属性指定生成出来的实体类的类名 -->
+		<table tableName="t_emp" domainObjectName="Emp"/>
+        <!-- <table tableName="*"></table> -->
+	</context>
+</generatorConfiguration>
+```
+
 #### ④ 执行MBG插件的generate目标
+
+![image-20220904085238537](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220904085238537.png)
 
 #### ⑤ 效果
 
-
+![image-20220904085411065](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220904085411065.png)
 
 ### 11.2、QBC查询
+
+```java
+@Test
+public void testMBG1(){
+    try {
+        InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+        SqlSession sqlSession = sqlSessionFactory.openSession(true);
+        EmpMapper mapper = sqlSession.getMapper(EmpMapper.class);
+        //查询所有数据
+        /*List<Emp> list = mapper.selectByExample(null);
+            list.forEach(emp -> System.out.println(emp));*/
+        //根据条件查询
+        /*EmpExample example = new EmpExample();
+            example.createCriteria().andEmpNameEqualTo("张三").andAgeGreaterThanOrEqualTo(20);
+            example.or().andDidIsNotNull();
+            List<Emp> list = mapper.selectByExample(example);
+            list.forEach(emp -> System.out.println(emp));*/
+        Emp emp = new Emp(1, "小王", null, "男");
+        mapper.updateByPrimaryKeySelective(emp);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+```
 
 
 
 ## 12、分页插件
 
+limit index,pageSize 
+
+index：当前页的起始索引，index=(pageNum-1)*pageSize 
+
+pageSize：每页显示的条数 
+
+pageNum：当前页的页码 
+
+count：总记录数 
+
+totalPage：总页数 
+
+totalPage = count / pageSize; 
+
+if(count % pageSize != 0){ 
+
+​	totalPage += 1; 
+
+} 
+
+> 举栗子
+
+> pageSize=4，pageNum=1，index=0 limit 0,4 
+
+> pageSize=4，pageNum=3，index=8 limit 8,4 
+
+> pageSize=4，pageNum=6，index=20 limit 20,4 
+
+
+
+[首页]() [上一页]() 2 3 4 5 6 [下一页]() [末页]()
+
 ### 12.1、分页插件的使用步骤
 
+#### ① 添加依赖
+
+```xml
+<!-- pagehelper分页插件 -->
+<dependency>
+    <groupId>com.github.pagehelper</groupId>
+    <artifactId>pagehelper</artifactId>
+    <version>5.3.0</version>
+</dependency>
+```
+
+#### ② 配置分页插件
+
+在MyBatis核心配置文件中配置插件
+
+```xml
+<plugins>
+    <!-- 设置分页插件 -->
+    <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+</plugins>
+```
+
 ### 12.2、分页插件的使用
+
+1. 在查询功能之前使用PageHelper.startPage(int pageNum, int pageSize)开启分页功能
+
+    > pageNum：当前页的页码 
+    >
+    > pageSize：每页显示的条数
+
+2. 在查询获取list集合之后，使用PageInfo pageInfo = new PageInfo<>(List list, int navigatePages)获取分页相关数据
+
+    > list：分页之后的数据 
+    >
+    > navigatePages：导航分页的页码数
+
+3. 分页相关数据
+
+    > PageInfo{pageNum=1, pageSize=4, size=4, startRow=1, endRow=4, total=30, pages=8, list=Page{count=true, pageNum=1, pageSize=4, startRow=0, endRow=4, total=30, pages=8, reasonable=false, pageSizeZero=false}
+    >
+    > [Emp{empId=1, empName='小王', age=20, gender='男', deptId=1}, Emp{empId=2, empName='李四', age=22, gender='女', deptId=2}, Emp{empId=3, empName='王五', age=18, gender='女', deptId=3}, Emp{empId=4, empName='赵六', age=22, gender='男', deptId=1}], 
+    >
+    > prePage=0, nextPage=2, isFirstPage=true, isLastPage=false, hasPreviousPage=false, hasNextPage=true, navigatePages=5, navigateFirstPage=1, navigateLastPage=5, navigatepageNums=[1, 2, 3, 4, 5]
+    >
+    > }
+    >
+    > pageNum：当前页的页码 
+    >
+    > pageSize：每页显示的条数 
+    >
+    > size：当前页显示的真实条数 
+    >
+    > total：总记录数 
+    >
+    > pages：总页数 
+    >
+    > prePage：上一页的页码 
+    >
+    > nextPage：下一页的页码 
+    >
+    > isFirstPage/isLastPage：是否为第一页/最后一页 
+    >
+    > hasPreviousPage/hasNextPage：是否存在上一页/下一页 
+    >
+    > navigatePages：导航分页的页码数 navigatepageNums：导航分页的页码，[1,2,3,4,5]
 
 
 
