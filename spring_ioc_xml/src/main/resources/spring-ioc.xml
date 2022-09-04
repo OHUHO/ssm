@@ -3,6 +3,40 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="studentOne" class="com.jingchao.spring.pojo.Student"></bean>
+	<bean id="studentOne" class="com.jingchao.spring.pojo.Student"/>
+
+	<bean id="studentTwo" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1001"/>
+		<property name="sname" value="张三"/>
+		<property name="age" value="18"/>
+		<property name="gender" value="女"/>
+	</bean>
+
+	<bean id="studentThree" class="com.jingchao.spring.pojo.Student">
+		<constructor-arg name="sid" value="1002"/>
+		<constructor-arg name="sname" value="李四"/>
+		<constructor-arg name="age" value="20"/>
+		<constructor-arg name="gender" value="男"/>
+	</bean>
+
+	<bean id="studentFour" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1003"/>
+		<property name="sname" value="王五"/>
+		<property name="age" value="18"/>
+		<property name="gender">
+			<null/>
+		</property>
+	</bean>
+
+	<bean id="studentFive" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1003"/>
+		<property name="sname">
+			<value><![CDATA[<王五>]]></value>
+		</property>
+		<property name="age" value="18"/>
+		<property name="gender">
+			<null/>
+		</property>
+	</bean>
 
 </beans>

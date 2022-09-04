@@ -1,6 +1,6 @@
 package com.jingchao.spring.pojo;
 
-public class Student {
+public class Student implements Person {
 
     private Integer sid;
 

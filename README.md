@@ -2262,6 +2262,285 @@ Spring 底层默认通过反射技术调用组件类的无参构造器来创建�
 
 #### 2.2.2、实验二：获取bean
 
+##### ① 方式一：根据bean的id获取
+
+由于 id 属性指定了 bean 的唯一标识，所以根据 bean 标签的 id 属性可以精确获取到一个组件对象。 
+
+```java
+@Test
+public void testIOC(){
+    // 获取IOC容器
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc.xml");
+    // 获取bean
+    Student student = (Student) ioc.getBean("studentOne");
+    System.out.println(student);
+}
+```
+
+##### ② 方式二：根据bean的类型获取（常用）
+
+```java
+@Test
+public void testIOC(){
+    // 获取IOC容器
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc.xml");
+    // 获取bean
+    Student student = ioc.getBean(Student.class);
+    System.out.println(student);
+}
+```
+
+##### ③ 方式三：根据id和类型获取
+
+```java
+@Test
+public void testIOC(){
+    // 获取IOC容器
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc.xml");
+    // 获取bean
+    Student student = ioc.getBean("studentOne", Student.class);
+    System.out.println(student);
+}
+```
+
+##### ④ 注意
+
+当根据类型获取bean时，要求IOC容器中指定类型的bean有且只能有一个
+
+当IOC容器配置两个：
+
+```xml
+<bean id="studentOne" class="com.jingchao.spring.pojo.Student"/>
+<bean id="studentTwo" class="com.jingchao.spring.pojo.Student"/>
+```
+
+根据类型获取时会抛出异常：
+
+> org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.jingchao.spring.pojo.Student' available: expected single matching bean but found 2: studentOne,studentTwo
+
+##### ⑤  扩展
+
+1. 问题一：如果组件类实现的接口，根据接口类型可以获取bean吗？
+
+    > 可以，前提是bean必须唯一
+
+2. 问题二：如果一个接口有多个实现类，这些类都配置了bean，根据接口类型可以获取bean吗？
+
+    > 不能，因为bean不唯一
+
+##### ⑥ 结论
+
+根据类型来获取bean时，在满足bean唯一性的前提下，其实只是看：『对象 instanceof 指定的类 型』的返回结果，只要返回的是true就可以认定为和类型匹配，能够获取到。
+
+
+
+#### 2.2.3、实验三：依赖注入之setter注入
+
+##### ① 创建学生类Student
+
+```java
+package com.jingchao.spring.pojo;
+
+public class Student {
+
+    private Integer sid;
+
+    private String sname;
+
+    private Integer age;
+
+    private String gender;
+
+    public Student() {
+    }
+
+    public Integer getSid() {
+        return sid;
+    }
+
+    public void setSid(Integer sid) {
+        this.sid = sid;
+    }
+
+    public String getSname() {
+        return sname;
+    }
+
+    public void setSname(String sname) {
+        this.sname = sname;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "sid=" + sid +
+                ", sname='" + sname + '\'' +
+                ", age=" + age +
+                ", gender='" + gender + '\'' +
+                '}';
+    }
+}
+```
+
+##### ② 配置bean时为属性赋值
+
+```xml
+<bean id="studentTwo" class="com.jingchao.spring.pojo.Student">
+    <property name="sid" value="1001"/>
+    <property name="sname" value="张三"/>
+    <property name="age" value="18"/>
+    <property name="gender" value="女"/>
+</bean>
+```
+
+> property标签：通过组件类的setXxx()方法给组件对象设置属性
+>
+> 属性：
+>
+> ​	name：指定属性名（这个属性名是getXxx()、setXxx()方法定义的，和成员变量无关
+>
+> ​	value：指定属性值
+
+##### ③ 测试
+
+```java
+ @Test
+public void testDI(){
+    // 获取IOC容器
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc.xml");
+    // 获取bean
+    Student student = ioc.getBean("studentTwo", Student.class);
+    System.out.println(student);
+}
+```
+
+
+
+#### 2.2.4、实验四：依赖注入之构造器注入
+
+##### ① 在Student类中添加带参构造器
+
+```java
+public Student(Integer sid, String sname, Integer age, String gender) {
+    this.sid = sid;
+    this.sname = sname;
+    this.age = age;
+    this.gender = gender;
+}
+```
+
+##### ② 配置bean
+
+```xml
+<bean id="studentThree" class="com.jingchao.spring.pojo.Student">
+    <constructor-arg value="1002"/>
+    <constructor-arg value="李四"/>
+    <constructor-arg value="20"/>
+    <constructor-arg value="男"/>
+</bean>
+```
+
+> 注意：constructor-arg标签还有两个属性可以进一步描述构造器参数：
+>
+> - index属性：指定参数所在位置的索引（从0开始） 
+> - name属性：指定参数名
+
+##### ③ 测试
+
+```java
+@Test
+public void testDI(){
+    // 获取IOC容器
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc.xml");
+    // 获取bean
+    Student student = ioc.getBean("studentThree", Student.class);
+    System.out.println(student);
+}
+```
+
+
+
+#### 2.2.5、实验五：特殊值处理
+
+##### ① 字面量赋值
+
+> 什么是字面量？ 
+>
+> int a = 10; 
+>
+> 声明一个变量a，初始化为10，此时a就不代表字母a了，而是作为一个变量的名字。当我们引用a 的时候，我们实际上拿到的值是10。 
+>
+> 而如果a是带引号的：'a'，那么它现在不是一个变量，它就是代表a这个字母本身，这就是字面 量。所以字面量没有引申含义，就是我们看到的这个数据本身。
+
+```xml
+<!-- 使用value属性给bean的属性赋值时，Spring会把value属性的值看做字面量 -->
+<property name="sname" value="张三"/>
+```
+
+##### ② null值
+
+```xml
+<property name="gender">
+    <null/>
+</property>
+```
+
+> 注意：下面的写法为gender赋的值为字符串 null
+>
+> ```xml
+> <property name="gender" value="null"/>
+> ```
+
+##### ③ xml实体
+
+```xml
+<property name="gender" value="&lt;男&gt;"/>
+```
+
+> 备注：大于小于符号在xml中意味着标签的结束和开始，不能使用，需要使用XML实体代替
+
+##### ④ CDATA节
+
+```xml
+<property name="gender">
+	<value><![CDATA[<男>]]></value>
+</property>
+```
+
+> 备注：XML解析器看到CDATA节就知道这里是纯文本，就不会当作XML标签或属性来解析
+>
+> 所以CDATA节中可以写任意的符号
+>
+> CDATA节是xml中一个特殊的标签，因此不能写在属性中
+
+
+
+#### 2.2.6、实验六：为类型属性赋值
+
+
+
+
+
+
+
+
+
 
 
 
