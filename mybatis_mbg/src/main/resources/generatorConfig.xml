@@ -10,6 +10,7 @@
 		MyBatis3: 生成带条件的CRUD（奢华尊享版）
 	-->
 	<context id="DB2Tables" targetRuntime="MyBatis3">
+
 		<!-- 数据库的连接信息 -->
 		<jdbcConnection
 				driverClass="com.mysql.cj.jdbc.Driver"
@@ -17,6 +18,7 @@
 				userId="root"
 				password="jc951753">
 		</jdbcConnection>
+
 		<!-- javaBean的生成策略-->
 		<javaModelGenerator
 				targetPackage="com.jingchao.mybatis.pojo"
@@ -24,12 +26,14 @@
 			<property name="enableSubPackages" value="true"/>
 			<property name="trimStrings" value="true"/>
 		</javaModelGenerator>
+
 		<!-- SQL映射文件的生成策略 -->
 		<sqlMapGenerator
 				targetPackage="com.jingchao.mybatis.mapper"
 				targetProject=".\src\main\resources">
 			<property name="enableSubPackages" value="true"/>
 		</sqlMapGenerator>
+
 		<!-- Mapper接口的生成策略 -->
 		<javaClientGenerator
 				type="XMLMAPPER"
@@ -37,6 +41,7 @@
 				targetProject=".\src\main\java">
 			<property name="enableSubPackages" value="true"/>
 		</javaClientGenerator>
+
 		<!-- 逆向分析的表 -->
 		<!-- tableName设置为*号，可以对应所有表，此时不写domainObjectName -->
 		<!-- domainObjectName属性指定生成出来的实体类的类名 -->
