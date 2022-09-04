@@ -2256,6 +2256,12 @@ public void test(){
 
 ##### ⑧ 注意
 
+Spring 底层默认通过反射技术调用组件类的无参构造器来创建组件对象，这一点需要注意。如果在需要 无参构造器时，没有无参构造器，则会抛出下面的异常：
+
+> org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'studentOne' defined in class path resource [spring-ioc.xml]: Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.jingchao.spring.pojo.Student]: No default constructor found; nested exception is java.lang.NoSuchMethodException: com.jingchao.spring.pojo.Student.<init>()
+
+#### 2.2.2、实验二：获取bean
+
 
 
 

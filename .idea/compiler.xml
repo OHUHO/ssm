@@ -13,6 +13,7 @@
         <module name="mybatis_mbg" />
         <module name="mybatis_dynamicSQL" />
         <module name="mybatis_cache" />
+        <module name="spring_ioc_xml" />
       </profile>
     </annotationProcessing>
   </component>
