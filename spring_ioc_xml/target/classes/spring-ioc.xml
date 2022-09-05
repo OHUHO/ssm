@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
 	<bean id="studentOne" class="com.jingchao.spring.pojo.Student"/>
 
@@ -94,5 +96,73 @@
 		</property>
 	</bean>
 
+
+	<bean id="clazzTwo" class="com.jingchao.spring.pojo.Clazz">
+		<property name="cid" value="1111"/>
+		<property name="cname" value="最强王者班"/>
+		<property name="students" ref="studentList"/>
+		<!-- <property name="students">
+			<list>
+				<ref bean="studentOne"/>
+				<ref bean="studentTwo"/>
+				<ref bean="studentThree"/>
+				<ref bean="studentFour"/>
+			</list>
+		</property> -->
+	</bean>
+
+	<util:list id="studentList">
+		<ref bean="studentOne"/>
+		<ref bean="studentTwo"/>
+		<ref bean="studentThree"/>
+		<ref bean="studentFour"/>
+	</util:list>
+
+
+	<bean id="studentTen" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1005"/>
+		<property name="sname" value="赵六"/>
+		<property name="age" value="24"/>
+		<property name="gender" value="男"/>
+		<property name="clazz">
+			<bean class="com.jingchao.spring.pojo.Clazz">
+				<property name="cid" value="333"/>
+				<property name="cname" value="暴富班"/>
+			</bean>
+		</property>
+		<property name="hobby">
+			<array>
+				<value>抽烟</value>
+				<value>喝酒</value>
+				<value>烫头</value>
+			</array>
+		</property>
+		<!-- <property name="teacherMap">
+			<map>
+				<entry key="1245" value-ref="teacherOne"/>
+				<entry key="1249" value-ref="teacherTwo"/>
+			</map>
+		</property> -->
+		<property name="teacherMap" ref="teacherMap"/>
+	</bean>
+	<bean id="teacherOne" class="com.jingchao.spring.pojo.Teacher">
+		<property name="tid" value="1245"/>
+		<property name="tname" value="张三"/>
+	</bean>
+	<bean id="teacherTwo" class="com.jingchao.spring.pojo.Teacher">
+		<property name="tid" value="1249"/>
+		<property name="tname" value="栗子"/>
+	</bean>
+
+	<util:map id="teacherMap">
+		<entry key="1245" value-ref="teacherOne"/>
+		<entry key="1249" value-ref="teacherTwo"/>
+	</util:map>
+
+	<bean id="studentEleven"
+	      class="com.jingchao.spring.pojo.Student"
+	      p:sid="1006" p:sname="王哈哈" p:teacherMap-ref="teacherMap">
+
+	</bean>
 
 </beans>

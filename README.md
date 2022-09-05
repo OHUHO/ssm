@@ -2752,14 +2752,316 @@ public String toString() {
 配置bean
 
 ```xml
-
+<bean id="clazzTwo" class="com.jingchao.spring.pojo.Clazz">
+    <property name="cid" value="1111"/>
+    <property name="cname" value="最强王者班"/>
+    <property name="students">
+        <list>
+            <ref bean="studentOne"/>
+            <ref bean="studentTwo"/>
+            <ref bean="studentThree"/>
+            <ref bean="studentFour"/>
+        </list>
+    </property>
+</bean>
 ```
+
+```xml
+<bean id="clazzTwo" class="com.jingchao.spring.pojo.Clazz">
+    <property name="cid" value="1111"/>
+    <property name="cname" value="最强王者班"/>
+    <property name="students" ref="studentList"/>
+</bean>
+
+<!-- 配置一个集合类型的bean -->
+<util:list id="studentList">
+    <ref bean="studentOne"/>
+    <ref bean="studentTwo"/>
+    <ref bean="studentThree"/>
+    <ref bean="studentFour"/>
+</util:list>
+```
+
+> 若为Set集合类型属性赋值，只需要将其中的list标签改为set标签即可
 
 ##### ② 为Map集合类型属性赋值
 
+创建Teacher教师类
+
+```java
+package com.jingchao.spring.pojo;
+
+public class Teacher {
+
+    private Integer tid;
+
+    private String tname;
+
+    public Teacher() {
+    }
+
+    public Teacher(Integer tid, String tname) {
+        this.tid = tid;
+        this.tname = tname;
+    }
+
+    public Integer getTid() {
+        return tid;
+    }
+
+    public void setTid(Integer tid) {
+        this.tid = tid;
+    }
+
+    public String getTname() {
+        return tname;
+    }
+
+    public void setTname(String tname) {
+        this.tname = tname;
+    }
+
+    @Override
+    public String toString() {
+        return "Teacher{" +
+                "tid=" + tid +
+                ", tname='" + tname + '\'' +
+                '}';
+    }
+}
+```
+
+在Student类中添加如下代码
+
+```java
+private Map<String, Teacher> teacherMap;
+
+public Map<String, Teacher> getTeacherMap() {
+    return teacherMap;
+}
+
+public void setTeacherMap(Map<String, Teacher> teacherMap) {
+    this.teacherMap = teacherMap;
+}
+
+@Override
+public String toString() {
+    return "Student{" +
+        "sid=" + sid +
+        ", sname='" + sname + '\'' +
+        ", age=" + age +
+        ", gender='" + gender + '\'' +
+        ", hobby=" + Arrays.toString(hobby) +
+        ", clazz=" + clazz +
+        ", teacherMap=" + teacherMap +
+        '}';
+}
+```
+
+配置bean
+
+```xml
+<bean id="studentTen" class="com.jingchao.spring.pojo.Student">
+    <property name="sid" value="1005"/>
+    <property name="sname" value="赵六"/>
+    <property name="age" value="24"/>
+    <property name="gender" value="男"/>
+    <property name="clazz">
+        <bean class="com.jingchao.spring.pojo.Clazz">
+            <property name="cid" value="333"/>
+            <property name="cname" value="暴富班"/>
+        </bean>
+    </property>
+    <property name="hobby">
+        <array>
+            <value>抽烟</value>
+            <value>喝酒</value>
+            <value>烫头</value>
+        </array>
+    </property>
+    <property name="teacherMap">
+        <map>
+            <entry key="1245" value-ref="teacherOne"/>
+            <entry key="1249" value-ref="teacherTwo"/>
+        </map>
+    </property>
+</bean>
+
+<bean id="teacherOne" class="com.jingchao.spring.pojo.Teacher">
+    <property name="tid" value="1245"/>
+    <property name="tname" value="张三"/>
+</bean>
+
+<bean id="teacherTwo" class="com.jingchao.spring.pojo.Teacher">
+    <property name="tid" value="1249"/>
+    <property name="tname" value="栗子"/>
+</bean>
+```
+
+##### ③ 引用集合类型的bean
+
+```xml
+<bean id="studentTen" class="com.jingchao.spring.pojo.Student">
+    <property name="sid" value="1005"/>
+    <property name="sname" value="赵六"/>
+    <property name="age" value="24"/>
+    <property name="gender" value="男"/>
+    <property name="clazz">
+        <bean class="com.jingchao.spring.pojo.Clazz">
+            <property name="cid" value="333"/>
+            <property name="cname" value="暴富班"/>
+        </bean>
+    </property>
+    <property name="hobby">
+        <array>
+            <value>抽烟</value>
+            <value>喝酒</value>
+            <value>烫头</value>
+        </array>
+    </property>
+    <property name="teacherMap" ref="teacherMap"/>
+</bean>
+<bean id="teacherOne" class="com.jingchao.spring.pojo.Teacher">
+    <property name="tid" value="1245"/>
+    <property name="tname" value="张三"/>
+</bean>
+<bean id="teacherTwo" class="com.jingchao.spring.pojo.Teacher">
+    <property name="tid" value="1249"/>
+    <property name="tname" value="栗子"/>
+</bean>
+
+<util:map id="teacherMap">
+    <entry key="1245" value-ref="teacherOne"/>
+    <entry key="1249" value-ref="teacherTwo"/>
+</util:map>
+```
+
+> 使用util:list、util:map标签必须引入相应的命名空间
 
 
 
+#### 2.2.9、实验九：p命名空间
+
+引入p命名空间后，可以通过以下方式为bean的各个属性赋值
+
+```xml
+<bean id="studentEleven"
+      class="com.jingchao.spring.pojo.Student"
+      p:sid="1006" p:sname="王哈哈" p:teacherMap-ref="teacherMap">
+</bean>
+```
+
+
+
+#### 2.2.10、实验十：引入外部属性文件
+
+##### ① 引入依赖
+
+```xml
+<!-- MySQL驱动 -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.28</version>
+</dependency>
+
+<!-- 数据源 -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.2.9</version>
+</dependency>
+```
+
+##### ② 创建外部属性文件
+
+文件名为 jdbc.properties
+
+```xml
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/ssm?serverTimezone=UTC
+jdbc.username=root
+jdbc.password=123456
+```
+
+##### ③ 引入属性文件
+
+```xml
+<!-- 引入jdbc.properties，之后可以通过${key}的方式访问value -->
+<context:property-placeholder location="jdbc.properties"/>
+```
+
+##### ④ 配置bean
+
+```xml
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${jdbc.driver}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+</bean>
+```
+
+##### ⑤ 测试
+
+```java
+@Test
+public void testDataSource() throws SQLException {
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-datasource.xml");
+    DruidDataSource dataSource = ioc.getBean(DruidDataSource.class);
+    System.out.println(dataSource.getConnection());
+}
+```
+
+
+
+#### 2.2.11、实验十一：bean的作用域
+
+##### ① 概念
+
+在Spring中可以通过配置bean标签的scope属性来指定bean的作用域范围，各取值含义参加下表：
+
+| 取值              | 含义                                    | 创建对象的时机  |
+| ----------------- | --------------------------------------- | --------------- |
+| singleton（默认） | 在IOC容器中，这个bean的对象始终为单实例 | IOC容器初始化时 |
+| prototype         | 这个bean在IOC容器中有多个实例           | 获取bean时      |
+
+如果是在WebApplicationContext环境下还会有另外两个作用域（不常用）
+
+| 取值    | 含义                 |
+| ------- | -------------------- |
+| request | 在一个请求范围内有效 |
+| session | 在一个会话范围内有效 |
+
+##### ② 创建User
+
+```java
+
+```
+
+##### ③ 配置bean
+
+```xml
+```
+
+##### ④ 测试
+
+```java
+```
+
+
+
+#### 2.2.12、实验十二：bean的生命周期
+
+##### ① 具体生命周期过程
+
+
+
+##### ② 修改类User
+
+
+
+##### ③ 配置bean
 
 
 

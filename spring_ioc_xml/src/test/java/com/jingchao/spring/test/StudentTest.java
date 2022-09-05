@@ -1,5 +1,6 @@
 package com.jingchao.spring.test;
 
+import com.jingchao.spring.pojo.Clazz;
 import com.jingchao.spring.pojo.Person;
 import com.jingchao.spring.pojo.Student;
 import org.junit.Test;
@@ -31,7 +32,14 @@ public class StudentTest {
         // Student student = ioc.getBean("studentSix", Student.class);
         // Student student = ioc.getBean("studentSeven", Student.class);
         // Student student = ioc.getBean("studentEight", Student.class);
-        Student student = ioc.getBean("studentNine", Student.class);
+        // Student student = ioc.getBean("studentNine", Student.class);
+        // System.out.println(student);
+
+        // Clazz clazz = ioc.getBean("clazzTwo", Clazz.class);
+        // System.out.println(clazz);
+
+        // Student student = ioc.getBean("studentTen", Student.class);
+        Student student = ioc.getBean("studentEleven", Student.class);
         System.out.println(student);
     }
 
