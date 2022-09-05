@@ -2533,7 +2533,229 @@ public void testDI(){
 
 #### 2.2.6、实验六：为类型属性赋值
 
+##### ① 创建班级类Clazz
 
+```java
+package com.jingchao.spring.pojo;
+
+public class Clazz {
+
+    private Integer  cid;
+
+    private String cname;
+
+    public Clazz() {
+    }
+
+    public Clazz(Integer cid, String cname) {
+        this.cid = cid;
+        this.cname = cname;
+    }
+
+    public Integer getCid() {
+        return cid;
+    }
+
+    public void setCid(Integer cid) {
+        this.cid = cid;
+    }
+
+    public String getCname() {
+        return cname;
+    }
+
+    public void setCname(String cname) {
+        this.cname = cname;
+    }
+
+    @Override
+    public String toString() {
+        return "Clazz{" +
+                "cid=" + cid +
+                ", cname='" + cname + '\'' +
+                '}';
+    }
+}
+```
+
+##### ② 修改Student类
+
+在Student类中添加如下代码
+
+```java
+private Clazz clazz;
+
+public Clazz getClazz(){
+    return clazz;
+}
+
+public void setClazz(Clazz clazz){
+    this.clazz = clazz;
+}
+
+@Override
+public String toString() {
+    return "Student{" +
+        "sid=" + sid +
+        ", sname='" + sname + '\'' +
+        ", age=" + age +
+        ", gender='" + gender + '\'' +
+        ", clazz=" + clazz +
+        '}';
+}
+```
+
+##### ③ 方式一：引用外部声明的bean
+
+- 配置Clazz类型的bean
+
+    ```xml
+    <bean id="clazzOne" class="com.jingchao.spring.pojo.Clazz">
+        <property name="cid" value="1111"/>
+        <property name="cname" value="最强王者班"/>
+    </bean>
+    ```
+
+- 为Student中的clazz属性赋值
+
+    ```xml
+    <bean id="studentSix" class="com.jingchao.spring.pojo.Student">
+        <property name="sid" value="1005"/>
+        <property name="sname" value="赵六"/>
+        <property name="age" value="24"/>
+        <property name="gender" value="男"/>
+        <property name="clazz" ref="clazzOne"/>
+    </bean>
+    ```
+
+    > 说明：ref属性：引用IOC容器中某个bean的id，将所对应的bean为属性赋值
+
+##### ④ 方式二：内部bean
+
+```xml
+<bean id="studentEight" class="com.jingchao.spring.pojo.Student">
+    <property name="sid" value="1005"/>
+    <property name="sname" value="赵六"/>
+    <property name="age" value="24"/>
+    <property name="gender" value="男"/>
+    <property name="clazz">
+        <bean id="clazzInner" class="com.jingchao.spring.pojo.Clazz">
+            <property name="cid" value="333"/>
+            <property name="cname" value="暴富班"/>
+        </bean>
+    </property>
+</bean>
+```
+
+> 说明：内部bean只能用于给属性赋值，不能再外部通过IOC容器获取，因此可以省略id属性
+
+##### ⑤ 方式三：级联属性赋值
+
+```xml
+<bean id="studentSeven" class="com.jingchao.spring.pojo.Student">
+    <property name="sid" value="1005"/>
+    <property name="sname" value="赵六"/>
+    <property name="age" value="24"/>
+    <property name="gender" value="男"/>
+    <!-- 必须先引用某个bean为属性赋值，才可以使用级联方式更新属性 -->
+    <property name="clazz" ref="clazzOne"/>
+    <property name="clazz.cid" value="2222"/>
+    <property name="clazz.cname" value="完胜班"/>
+</bean>
+```
+
+
+
+#### 2.2.7、实验七：为数组类型属性赋值
+
+##### ① 修改Student类
+
+在Student类中添加如下代码
+
+```java
+private String[] hobby;
+
+public String[] getHobby() {
+    return hobby;
+}
+
+public void setHobby(String[] hobby) {
+    this.hobby = hobby;
+}
+
+@Override
+public String toString() {
+    return "Student{" +
+        "sid=" + sid +
+        ", sname='" + sname + '\'' +
+        ", age=" + age +
+        ", gender='" + gender + '\'' +
+        ", hobby=" + Arrays.toString(hobby) +
+        ", clazz=" + clazz +
+        '}';
+}
+```
+
+##### ② 配置bean
+
+```xml
+<bean id="studentNine" class="com.jingchao.spring.pojo.Student">
+    <property name="sid" value="1005"/>
+    <property name="sname" value="赵六"/>
+    <property name="age" value="24"/>
+    <property name="gender" value="男"/>
+    <property name="clazz">
+        <bean class="com.jingchao.spring.pojo.Clazz">
+            <property name="cid" value="333"/>
+            <property name="cname" value="暴富班"/>
+        </bean>
+    </property>
+    <property name="hobby">
+        <array>
+            <value>抽烟</value>
+            <value>喝酒</value>
+            <value>烫头</value>
+        </array>
+    </property>
+</bean>
+```
+
+
+
+#### 2.2.8、实验八：为集合类型属性赋值
+
+##### ① 为List集合类型属性赋值
+
+在Clazz类中添加如下代码
+
+```java
+private List<Student> students;
+
+public List<Student> getStudents() {
+    return students;
+}
+
+public void setStudents(List<Student> students) {
+    this.students = students;
+}
+
+@Override
+public String toString() {
+    return "Clazz{" +
+        "cid=" + cid +
+        ", cname='" + cname + '\'' +
+        ", students=" + students +
+        '}';
+}
+```
+
+配置bean
+
+```xml
+
+```
+
+##### ② 为Map集合类型属性赋值
 
 
 

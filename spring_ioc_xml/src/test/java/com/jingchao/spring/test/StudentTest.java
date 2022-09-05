@@ -27,7 +27,11 @@ public class StudentTest {
         ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc.xml");
         // 获取bean
         // Student student = ioc.getBean("studentTwo", Student.class);
-        Student student = ioc.getBean("studentThree", Student.class);
+        // Student student = ioc.getBean("studentThree", Student.class);
+        // Student student = ioc.getBean("studentSix", Student.class);
+        // Student student = ioc.getBean("studentSeven", Student.class);
+        // Student student = ioc.getBean("studentEight", Student.class);
+        Student student = ioc.getBean("studentNine", Student.class);
         System.out.println(student);
     }
 

@@ -19,4 +19,80 @@
 		<constructor-arg name="gender" value="男"/>
 	</bean>
 
+	<bean id="studentFour" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1003"/>
+		<property name="sname" value="王五"/>
+		<property name="age" value="18"/>
+		<property name="gender">
+			<null/>
+		</property>
+	</bean>
+
+	<bean id="studentFive" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1004"/>
+		<property name="sname">
+			<value><![CDATA[<王五>]]></value>
+		</property>
+		<property name="age" value="18"/>
+		<property name="gender">
+			<null/>
+		</property>
+	</bean>
+
+	<bean id="studentSix" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1005"/>
+		<property name="sname" value="赵六"/>
+		<property name="age" value="24"/>
+		<property name="gender" value="男"/>
+		<property name="clazz" ref="clazzOne"/>
+	</bean>
+	<bean id="clazzOne" class="com.jingchao.spring.pojo.Clazz">
+		<property name="cid" value="1111"/>
+		<property name="cname" value="最强王者班"/>
+	</bean>
+
+	<bean id="studentSeven" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1005"/>
+		<property name="sname" value="赵六"/>
+		<property name="age" value="24"/>
+		<property name="gender" value="男"/>
+		<property name="clazz" ref="clazzOne"/>
+		<property name="clazz.cid" value="2222"/>
+		<property name="clazz.cname" value="完胜班"/>
+	</bean>
+
+	<bean id="studentEight" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1005"/>
+		<property name="sname" value="赵六"/>
+		<property name="age" value="24"/>
+		<property name="gender" value="男"/>
+		<property name="clazz">
+			<bean id="clazzInner" class="com.jingchao.spring.pojo.Clazz">
+				<property name="cid" value="333"/>
+				<property name="cname" value="暴富班"/>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="studentNine" class="com.jingchao.spring.pojo.Student">
+		<property name="sid" value="1005"/>
+		<property name="sname" value="赵六"/>
+		<property name="age" value="24"/>
+		<property name="gender" value="男"/>
+		<property name="clazz">
+			<bean class="com.jingchao.spring.pojo.Clazz">
+				<property name="cid" value="333"/>
+				<property name="cname" value="暴富班"/>
+			</bean>
+		</property>
+		<property name="hobby">
+			<array>
+				<value>抽烟</value>
+				<value>喝酒</value>
+				<value>烫头</value>
+			</array>
+		</property>
+	</bean>
+
+
 </beans>
