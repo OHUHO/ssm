@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- <bean id="userController" class="com.jingchao.spring.controller.UserController">
+		<property name="userService" ref="userService"/>
+	</bean>
+
+	<bean id="userService" class="com.jingchao.spring.service.impl.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+
+	<bean id="userDao" class="com.jingchao.spring.dao.impl.UserDaoImpl"/> -->
+
+	<!-- <bean id="userController" class="com.jingchao.spring.controller.UserController" autowire="byType"/>
+
+	<bean id="userService" class="com.jingchao.spring.service.impl.UserServiceImpl" autowire="byType"/>
+
+	<bean id="userDao" class="com.jingchao.spring.dao.impl.UserDaoImpl"/> -->
+
+	<bean id="userController" class="com.jingchao.spring.controller.UserController" autowire="byName"/>
+
+	<bean id="userService" class="com.jingchao.spring.service.impl.UserServiceImpl" autowire="byName"/>
+	<bean id="userServiceImpl" class="com.jingchao.spring.service.impl.UserServiceImpl" autowire="byName"/>
+
+	<bean id="userDao" class="com.jingchao.spring.dao.impl.UserDaoImpl"/>
+	<bean id="userDaoImpl" class="com.jingchao.spring.dao.impl.UserDaoImpl"/>
+
+
+
+
+
+</beans>

@@ -3236,20 +3236,220 @@ public class MyBeanPostProcessor implements BeanPostProcessor {
 
 ##### ① 简介
 
+FactoryBean是Spring提供的一种整合第三方框架的常用机制。和普通的bean不同，配置一个 FactoryBean类型的bean，在获取bean的时候得到的并不是class属性中配置的这个类的对象，而是 getObject()方法的返回值。通过这种机制，Spring可以帮我们把复杂组件创建的详细过程和繁琐细节都 屏蔽起来，只把最简洁的使用界面展示给我们。 
 
+将来我们整合Mybatis时，Spring就是通过FactoryBean机制来帮我们创建SqlSessionFactory对象的。
+
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package org.springframework.beans.factory;
+
+import org.springframework.lang.Nullable;
+
+public interface FactoryBean<T> {
+    String OBJECT_TYPE_ATTRIBUTE = "factoryBeanObjectType";
+
+    @Nullable
+    T getObject() throws Exception;
+
+    @Nullable
+    Class<?> getObjectType();
+
+    default boolean isSingleton() {
+        return true;
+    }
+}
+```
 
 ##### ② 创建UserFactoryBean
 
 ```java
+package com.jingchao.spring.factory;
+
+import com.jingchao.spring.pojo.User;
+import org.springframework.beans.factory.FactoryBean;
+
+public class UserFactoryBean implements FactoryBean {
+    @Override
+    public Object getObject() throws Exception {
+        return new User();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return User.class;
+    }
+}
 ```
 
+##### ③ 配置bean
 
+```xml
+<bean id="user" class="com.jingchao.spring.factory.UserFactoryBean"/>
+```
+
+##### ④ 测试
+
+```java
+@Test
+public void testFactoryBean(){
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-factory.xml");
+    User user = ioc.getBean(User.class);
+    System.out.println(user);
+}
+```
 
 
 
 #### 2.2.14、实验十四：基于xml的自动装配
 
+> 自动装配： 
+>
+> 根据指定的策略，在IOC容器中匹配某一个bean，自动为指定的bean中所依赖的类类型或接口类 型属性赋值
 
+##### ① 场景模拟
+
+创建UserController类
+
+```java
+package com.jingchao.spring.controller;
+
+import com.jingchao.spring.service.UserService;
+
+public class UserController {
+
+    private UserService userService;
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public void  saveUser(){
+        userService.saveUser();
+    }
+}
+```
+
+创建UserService接口
+
+```java
+package com.jingchao.spring.service;
+
+public interface UserService {
+
+    /**
+     * 保存用户信息
+     */
+    void saveUser();
+}
+```
+
+创建UserServiceImpl类实现UserService接口
+
+```java
+package com.jingchao.spring.service.impl;
+
+import com.jingchao.spring.dao.UserDao;
+import com.jingchao.spring.service.UserService;
+
+public class UserServiceImpl implements UserService {
+
+    private UserDao userDao;
+
+    public UserDao getUserDao() {
+        return userDao;
+    }
+
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public void saveUser() {
+        userDao.saveUser();
+    }
+}
+```
+
+创建UserDao接口
+
+```java
+package com.jingchao.spring.dao;
+
+public interface UserDao {
+
+    /**
+     * 保存用户信息
+     */
+    void saveUser();
+}
+```
+
+创建UserDaoImpl类实现UserDao接口
+
+```java
+package com.jingchao.spring.dao.impl;
+
+import com.jingchao.spring.dao.UserDao;
+
+public class UserDaoImpl implements UserDao {
+    @Override
+    public void saveUser() {
+        System.out.println("保存成功！");
+    }
+}
+```
+
+##### ② 配置bean
+
+> 使用bean标签的autowire属性设置自动装配效果
+
+> 自动装配方式：byType 
+>
+> byType：根据类型匹配IOC容器中的某个兼容类型的bean，为属性自动赋值 若在IOC中，没有任何一个兼容类型的bean能够为属性赋值，则该属性不装配，即值为默认值 null 
+>
+> 若在IOC中，有多个兼容类型的bean能够为属性赋值，则抛出异常 NoUniqueBeanDefinitionException
+
+```xml
+<bean id="userController" class="com.jingchao.spring.controller.UserController" autowire="byType"/>
+
+<bean id="userService" class="com.jingchao.spring.service.impl.UserServiceImpl" autowire="byType"/>
+
+<bean id="userDao" class="com.jingchao.spring.dao.impl.UserDaoImpl"/>
+```
+
+> 自动装配：byName
+>
+> byName：将自动装配的属性的属性名，作为bean的id在IOC容器中匹配相对应的bean进行赋值
+
+```xml
+<bean id="userController" class="com.jingchao.spring.controller.UserController" autowire="byName"/>
+
+<bean id="userService" class="com.jingchao.spring.service.impl.UserServiceImpl" autowire="byName"/>
+<bean id="userServiceImpl" class="com.jingchao.spring.service.impl.UserServiceImpl" autowire="byName"/>
+
+<bean id="userDao" class="com.jingchao.spring.dao.impl.UserDaoImpl"/>
+<bean id="userDaoImpl" class="com.jingchao.spring.dao.impl.UserDaoImpl"/>
+```
+
+##### ③ 测试
+
+```java
+@Test
+public void testAutowire(){
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-autowire-xml.xml");
+    UserController controller = ioc.getBean(UserController.class);
+    controller.saveUser();
+}
+```
 
 
 
