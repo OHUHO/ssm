@@ -3033,20 +3033,30 @@ public void testDataSource() throws SQLException {
 | request | 在一个请求范围内有效 |
 | session | 在一个会话范围内有效 |
 
-##### ② 创建User
-
-```java
-
-```
-
-##### ③ 配置bean
+##### ② 配置bean
 
 ```xml
+<bean id="student" class="com.jingchao.spring.pojo.Student" scope="prototype">
+    <property name="sid" value="1001"/>
+    <property name="sname" value="张三"/>
+</bean>
 ```
 
-##### ④ 测试
+> 说明：
+>
+> 1. scope="singleton" （默认值）时，bean在IOC容器中只有一个实例，IOC容器初始化时创建对象
+> 2. scope="prototype" 时，bean在IOC容器中可以有多个实例，getBean()时创建对象
+
+##### ③ 测试
 
 ```java
+@Test
+public void testScope(){
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-scope.xml");
+    Student student = ioc.getBean(Student.class);
+    Student student1 = ioc.getBean(Student.class);
+    System.out.println(student == student1);
+}
 ```
 
 
@@ -3055,17 +3065,195 @@ public void testDataSource() throws SQLException {
 
 ##### ① 具体生命周期过程
 
+- bean对象创建（调用无参构造器） 
+- 给bean对象设置属性 
+- bean对象初始化之前操作（由bean的后置处理器负责） 
+- bean对象初始化（需在配置bean时指定初始化方法） 
+- bean对象初始化之后操作（由bean的后置处理器负责） 
+- bean对象就绪可以使用 bean对象销毁（需在配置bean时指定销毁方法） 
+- IOC容器关闭
 
+##### ② 创建User类
 
-##### ② 修改类User
+```java
+package com.jingchao.spring.pojo;
 
+public class User {
 
+    private Integer id;
+
+    private String username;
+
+    private String password;
+
+    private Integer age;
+
+    public User() {
+        System.out.println("生命周期：1、创建对象");
+    }
+
+    public User(Integer id, String username, String password, Integer age) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.age = age;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        System.out.println("生命周期：2、依赖注入");
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public void initMethod(){
+        System.out.println("生命周期：3、初始化");
+    }
+
+    public void destroyMethod(){
+        System.out.println("生命周期：4、销毁");
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+```
+
+> 注意：其中的initMethod()和destroyMethod()，可以通过配置bean指定为初始化和销毁的方法
 
 ##### ③ 配置bean
 
+```xml
+<bean id="user"
+      class="com.jingchao.spring.pojo.User"
+      init-method="initMethod"
+      destroy-method="destroyMethod">
+    <property name="id" value="1001"/>
+    <property name="username" value="admin"/>
+    <property name="password" value="123456"/>
+    <property name="age" value="18"/>
+</bean>
+```
+
+##### ④ 测试
+
+```java
+@Test
+public void testLifeCycle(){
+    ConfigurableApplicationContext ioc = new ClassPathXmlApplicationContext("spring-lifecycle.xml");
+    User user = ioc.getBean(User.class);
+    System.out.println(user);
+    ioc.close();
+}
+```
+
+> 说明：
+>
+> ConfigurableApplicationContext是ApplicationContext的子接口，其中扩展了刷新和关闭容器的方法。
+>
+> 生命周期：
+>
+> 1. 实例化
+> 2. 依赖注入
+> 3. 后置处理器的postProcessBeforeInitialization
+> 4. 初始化，需要通过bean的init-method属性指定初始化的方法
+> 5. 后置处理器的postProcessAfterInitialization
+> 6. IOC容器关闭时销毁，需要通过bean的destroy-method属性指定销毁的方法
+
+##### ⑤ bean的后置处理器
+
+bean的后置处理器会在生命周期的初始化前后添加额外的操作，需要实现BeanPostProcessor接口， 且配置到IOC容器中，需要注意的是，bean后置处理器不是单独针对某一个bean生效，而是针对IOC容 器中所有bean都会执行 
+
+创建bean的后置处理器：
+
+```java
+package com.jingchao.spring.process;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+
+public class MyBeanPostProcessor implements BeanPostProcessor {
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        // 此方法在bean的生命周期初始化之前执行
+        System.out.println("MyBeanPostProcessor 后置处理器postProcessBeforeInitialization");
+        return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        // 此方法在bean的生命周期初始化之后执行
+        System.out.println("MyBeanPostProcessor 后置处理器postProcessAfterInitialization");
+        return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
+    }
+}
+```
+
+在IOC容器中配置后置处理器：
+
+```xml
+<!-- bean的后置处理器需要放在IOC容器中才能生效 -->
+<bean id="myBeanPostProcessor" class="com.jingchao.spring.process.MyBeanPostProcessor"></bean>
+```
 
 
 
+#### 2.2.13、实验十三：FactoryBean
+
+##### ① 简介
+
+
+
+##### ② 创建UserFactoryBean
+
+```java
+```
+
+
+
+
+
+#### 2.2.14、实验十四：基于xml的自动装配
+
+
+
+
+
+### 2.3、基于注解管理bean
 
 
 
