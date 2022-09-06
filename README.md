@@ -3466,7 +3466,7 @@ public void testAutowire(){
 举例：元旦联欢会要布置教室，蓝色的地方贴上元旦快乐四个字，红色的地方贴上拉花，黄色的地方贴 上气球。
 
 | ![image-20220906073848352](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906073848352.png) |
-| ------------------------------------------------------------ |
+| :----------------------------------------------------------: |
 
 班长做了所有标记，同学们来完成具体工作。墙上的标记相当于我们在代码中使用的注解，后面同学们 做的工作，相当于框架的具体操作。
 
@@ -3830,4 +3830,203 @@ public class UserController {
 ![image-20220906094922427](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906094922427.png)
 
 - 首先根据所需要的组件类型到IOC容器中查找
-    - 
+    - 能够找到唯一的bean：直接执行装配
+    - 如果完全找不到匹配这个类型的bean：装配失败
+    - 和所需类型匹配的bean不止一个
+        - 没有@Qualifier注解：根据@Autowired标记位置成员变量的变量名作为bean的id进行匹配
+            - 能够找到：执行装配
+            - 不能不到：装配失败
+        - 使用@Qualifier注解：根据@Qualifier注解中指定的名称作为bean的id进行匹配
+            - 能够找到：执行装配
+            - 不能找到：装配失败
+
+```java
+@Controller
+public class UserController{
+    @Autowired
+    @Qualifier("userServiceImpl")
+    private UserService userService;
+    
+    public void saveUser(){
+        userService.saveUser();
+    }
+}
+```
+
+
+
+## 3、AOP
+
+### 3.1、场景模拟
+
+#### 3.1.1、声明接口
+
+声明计算器接口Calculator，包含加减乘除的抽象方法
+
+```java
+package com.jingchao.spring.proxy;
+
+public interface Calculator {
+
+    int add(int i, int j);
+
+    int sub(int i, int j);
+
+    int mul(int i, int j);
+
+    int div(int i, int j);
+
+}
+```
+
+
+
+#### 3.1.2、创建实现类
+
+| ![image-20220906100648433](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906100648433.png) |
+| :----------------------------------------------------------: |
+
+```java
+package com.jingchao.spring.proxy;
+
+public class CalculatorImpl implements Calculator{
+
+    @Override
+    public int add(int i, int j) {
+        int result = i + j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int sub(int i, int j) {
+        int result = i - j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int mul(int i, int j) {
+        int result = i * j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int div(int i, int j) {
+        int result = i / j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+}
+```
+
+
+
+#### 3.1.3、创建带日志功能的实现类
+
+| ![image-20220906101002400](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906101002400.png) |
+| :----------------------------------------------------------: |
+
+```java
+package com.jingchao.spring.proxy;
+
+public class CalculatorLogImpl implements Calculator{
+
+    @Override
+    public int add(int i, int j) {
+        System.out.println("[日志] add 方法开始了，参数是：" + i + "," + j);
+        int result = i + j;
+        System.out.println("方法内部 result = " + result);
+        System.out.println("[日志] add 方法结束了，结果是：" + result);
+        return result;
+    }
+
+    @Override
+    public int sub(int i, int j) {
+        System.out.println("[日志] sub 方法开始了，参数是：" + i + "," + j);
+        int result = i - j;
+        System.out.println("方法内部 result = " + result);
+        System.out.println("[日志] sub 方法结束了，结果是：" + result);
+        return result;
+    }
+
+    @Override
+    public int mul(int i, int j) {
+        System.out.println("[日志] mul 方法开始了，参数是：" + i + "," + j);
+        int result = i * j;
+        System.out.println("方法内部 result = " + result);
+        System.out.println("[日志] mul 方法结束了，结果是：" + result);
+        return result;
+    }
+
+    @Override
+    public int div(int i, int j) {
+        System.out.println("[日志] div 方法开始了，参数是：" + i + "," + j);
+        int result = i / j;
+        System.out.println("方法内部 result = " + result);
+        System.out.println("[日志] div 方法结束了，结果是：" + result);
+        return result;
+    }
+    
+}
+```
+
+
+
+#### 3.1.4、提出问题
+
+##### ① 现有代码缺陷
+
+针对带日志功能的实现类，我们发现有如下缺陷： 
+
+- 对核心业务功能有干扰，导致程序员在开发核心业务功能时分散了精力 
+- 附加功能分散在各个业务功能方法中，不利于统一维护
+
+##### ② 解决思路
+
+解决这两个问题，核心就是：解耦。我们需要把附加功能从业务功能代码中抽取出来
+
+##### ③ 困难
+
+解决问题的困难：要抽取的代码在方法内部，靠以前把子类中的重复代码抽取到父类的方式没法解决。 所以需要引入新的技术
+
+
+
+### 3.2、代理模式
+
+#### 3.2.1、概念
+
+##### ① 介绍
+
+二十三种设计模式中的一种，属于结构型模式。它的作用就是通过提供一个代理类，让我们在调用目标 方法的时候，不再是直接对目标方法进行调用，而是通过代理类间接调用。让不属于目标方法核心逻辑 的代码从目标方法中剥离出来——**解耦**。调用目标方法时先调用代理对象的方法，减少对目标方法的调 用和打扰，同时让附加功能能够集中在一起也有利于统一维护。
+
+| ![image-20220906102759367](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906102759367.png) |
+| :----------------------------------------------------------: |
+
+使用代理后：
+
+| ![image-20220906102851533](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906102851533.png) |
+| :----------------------------------------------------------: |
+
+##### ② 生活中的代理
+
+- 广告商找大明星拍广告需要经过经纪人 
+- 合作伙伴找大老板谈合作要约见面时间需要经过秘书 
+- 房产中介是买卖双方的代理
+
+##### ③ 相关术语
+
+- 代理：将非核心逻辑剥离出来以后，封装这些非核心逻辑的类、对象、方法。 
+- 目标：被代理“套用”了非核心逻辑代码的类、对象、方法。
+
+
+
+#### 3.2.2、静态代理
+
+创建静态代理类：
+
+```java
+```
+
