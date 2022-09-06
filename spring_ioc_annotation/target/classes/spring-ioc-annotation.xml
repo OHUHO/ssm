@@ -5,12 +5,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- 扫描组件 -->
-	<context:component-scan base-package="com.jingchao.spring" use-default-filters="false">
+	<context:component-scan base-package="com.jingchao.spring">
 		<!-- <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/> -->
 		<!-- <context:exclude-filter type="assignable" expression="com.jingchao.spring.controller.UserController"/> -->
 		
 		<!-- <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/> -->
-		<context:include-filter type="assignable" expression="com.jingchao.spring.controller.UserController"/>
+		<!-- <context:include-filter type="assignable" expression="com.jingchao.spring.controller.UserController"/> -->
 		
 	</context:component-scan>
 

@@ -3645,7 +3645,7 @@ public void test(){
 >
 > 可通过标识组件的注解的value属性设置自定义的bean的id 
 >
-> @Service("userService")//默认为userServiceImpl public class UserServiceImpl implements UserService {}
+> @Service("userService")        默认为userServiceImpl   自定义后为userService
 
 #### 2.3.2、实验二：基于注解的自动装配
 
@@ -3661,6 +3661,173 @@ public void test(){
 
 在成员变量上直接标记@Autowired注解即可完成自动装配，不需要提供setXxx()方法。以后我们在项 目中的正式用法就是这样。
 
+修改UserController类
+
 ```java
+package com.jingchao.spring.controller;
+
+import com.jingchao.spring.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+@Controller("controller")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    public void savaUser(){
+        userService.saveUser();
+    };
+}
 ```
 
+修改UserService接口
+
+```java
+package com.jingchao.spring.service;
+
+public interface UserService {
+
+    /**
+     * 保存用户信息
+     */
+    void saveUser();
+}
+```
+
+修改UserService接口的实现类UserServiceImpl
+
+```java
+package com.jingchao.spring.service.impl;
+
+import com.jingchao.spring.dao.UserDao;
+import com.jingchao.spring.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserDao userDao;
+
+    @Override
+    public void saveUser() {
+        userDao.saveUser();
+    }
+}
+```
+
+修改UserDao接口
+
+```java
+package com.jingchao.spring.dao;
+
+public interface UserDao {
+
+    /**
+     * 保存用户信息
+     */
+    void saveUser();
+}
+```
+
+修改UserDao接口的实现类UserDaoImpl
+
+```java
+package com.jingchao.spring.dao.impl;
+
+import com.jingchao.spring.dao.UserDao;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class UserDaoImpl implements UserDao {
+
+    @Override
+    public void saveUser() {
+        System.out.println("保存成功！");
+    }
+}
+```
+
+测试
+
+```java
+@Test
+public void test(){
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc-annotation.xml");
+    UserController controller = ioc.getBean("controller",UserController.class);
+    controller.savaUser();
+
+}
+```
+
+##### ③ Autowired注解其他细节
+
+> @Autowire注解可以标记在构造器
+
+```java
+package com.jingchao.spring.controller;
+
+import com.jingchao.spring.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+@Controller("controller")
+public class UserController {
+
+    private UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    public void savaUser(){
+        userService.saveUser();
+    };
+}
+```
+
+> @Autowire注解可以标记在set方法上
+
+```java
+package com.jingchao.spring.controller;
+
+import com.jingchao.spring.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+@Controller("controller")
+public class UserController {
+
+    private UserService userService;
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public void savaUser(){
+        userService.saveUser();
+    };
+}
+```
+
+
+
+> **注意：**
+>
+> 1. Autowired注解能够标识的位置
+>     - 标识在成员变量上，此时不需要设置成员变量的set方法
+>     - 表示在set方法上
+>     - 表示在为当前成员变量赋值的构造器上
+> 2. 
+
+##### ④ @Autowired工作流程
+
+![image-20220906094922427](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906094922427.png)
+
+- 首先根据所需要的组件类型到IOC容器中查找
+    - 

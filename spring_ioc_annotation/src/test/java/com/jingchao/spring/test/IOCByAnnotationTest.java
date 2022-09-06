@@ -12,14 +12,16 @@ public class IOCByAnnotationTest {
     @Test
     public void test(){
         ApplicationContext ioc = new ClassPathXmlApplicationContext("spring-ioc-annotation.xml");
-        UserController controller = ioc.getBean(UserController.class);
-        System.out.println(controller);
+        UserController controller = ioc.getBean("controller",UserController.class);
+        /* System.out.println(controller);
 
         UserService service = ioc.getBean(UserService.class);
         System.out.println(service);
 
         UserDao dao = ioc.getBean(UserDao.class);
-        System.out.println(dao);
+        System.out.println(dao); */
+        controller.savaUser();
 
     }
+
 }
