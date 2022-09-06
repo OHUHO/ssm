@@ -4028,5 +4028,222 @@ public class CalculatorLogImpl implements Calculator{
 创建静态代理类：
 
 ```java
+package com.jingchao.spring.proxy;
+
+public class CalculatorStaticProxy implements Calculator{
+
+    private CalculatorImpl target;
+
+    public CalculatorStaticProxy(CalculatorImpl target) {
+        this.target = target;
+    }
+
+    @Override
+    public int add(int i, int j) {
+        System.out.println("[日志] add 方法开始了，参数是：" + i + "," + j);
+        int result = target.add(i, j);
+        System.out.println("[日志] add 方法结束了，结果是：" + result);
+        return result;
+    }
+
+    @Override
+    public int sub(int i, int j) {
+        System.out.println("[日志] sub 方法开始了，参数是：" + i + "," + j);
+        int result = sub(i, j);
+        System.out.println("[日志] sub 方法结束了，结果是：" + result);
+        return result;
+    }
+
+    @Override
+    public int mul(int i, int j) {
+        System.out.println("[日志] mul 方法开始了，参数是：" + i + "," + j);
+        int result = target.mul(i, j);
+        System.out.println("[日志] mul 方法结束了，结果是：" + result);
+        return result;
+    }
+
+    @Override
+    public int div(int i, int j) {
+        System.out.println("[日志] div 方法开始了，参数是：" + i + "," + j);
+        int result = target.div(i, j);
+        System.out.println("[日志] div 方法结束了，结果是：" + result);
+        return result;
+    }
+}
+```
+
+测试
+
+```java
+@Test
+public  void testProxy(){
+    CalculatorStaticProxy proxy = new CalculatorStaticProxy(new CalculatorImpl());
+    proxy.add(2,4);
+}
+```
+
+> 静态代理确实实现了解耦，但是由于代码都写死了，完全不具备任何的灵活性。就拿日志功能来 说，将来其他地方也需要附加日志，那还得再声明更多个静态代理类，那就产生了大量重复的代 码，日志功能还是分散的，没有统一管理。 
+>
+> 提出进一步的需求：将日志功能集中到一个代理类中，将来有任何日志需求，都通过这一个代理 类来实现。这就需要使用动态代理技术了。
+
+
+
+#### 3.2.3、动态代理
+
+| ![image-20220906205802715](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906205802715.png) |
+| ------------------------------------------------------------ |
+
+生产代理对象的工厂类
+
+```java
+package com.jingchao.spring.proxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+
+public class ProxyFactory {
+
+    private Object target;
+
+    public ProxyFactory(Object target) {
+        this.target = target;
+    }
+
+    public Object getProxy(){
+
+        ClassLoader classLoader = target.getClass().getClassLoader();
+
+        Class<?>[] interfaces = target.getClass().getInterfaces();
+
+        InvocationHandler invocationHandler = new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                Object result = null;
+                try {
+                    // proxy代理对象    method要执行的方法    args 要执行的方法用到的参数列表
+                    System.out.println("[日志] "+ method.getName()+" 方法开始了，参数是：" + Arrays.toString(args));
+                    result = method.invoke(target, args);
+                    System.out.println("[日志] "+ method.getName()+" 方法结束了，结果是：" + result);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("[日志] "+ method.getName()+" 异常" + e);
+                } finally {
+                    System.out.println("[日志] "+ method.getName()+" 方法执行完毕");
+                }
+
+                return result;
+            }
+        };
+
+        return Proxy.newProxyInstance(classLoader,interfaces,invocationHandler);
+    }
+}
+```
+
+测试
+
+```java
+@Test
+public  void testProxy(){
+    ProxyFactory proxyFactory = new ProxyFactory(new CalculatorImpl());
+    Calculator proxy = (Calculator) proxyFactory.getProxy();
+    proxy.add(2,4);
+}
+```
+
+
+
+### 3.3、AOP概念即相关术语
+
+#### 3.3.1、概述
+
+AOP（Aspect Oriented Programming）是一种设计思想，是软件设计领域中的面向切面编程，它是面 向对象编程的一种补充和完善，它以通过预编译方式和运行期动态代理方式实现在不修改源代码的情况 下给程序动态统一添加额外功能的一种技术
+
+#### 3.3.2、相关术语
+
+##### ① 横切关注点
+
+从每个方法中抽取出来的同一类非核心业务。在同一个项目中，我们可以使用多个横切关注点对相关方 法进行多个不同方面的增强。 
+
+这个概念不是语法层面天然存在的，而是根据附加功能的逻辑上的需要：有十个附加功能，就有十个横 切关注点。
+
+| ![image-20220906212716297](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906212716297.png) |
+| :----------------------------------------------------------: |
+
+##### ② 通知
+
+每一个横切关注点上要做的事情都需要写一个方法来实现，这样的方法就叫通知方法。
+
+- 前置通知：在被代理的目标方法前执行 
+- 返回通知：在被代理的目标方法成功结束后执行（寿终正寝） 
+- 异常通知：在被代理的目标方法异常结束后执行（死于非命） 
+- 后置通知：在被代理的目标方法最终结束后执行（盖棺定论） 
+- 环绕通知：使用try...catch...finally结构围绕整个被代理的目标方法，包括上面四种通知对应的所 有位置
+
+| ![image-20220906212833606](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906212833606.png) |
+| :----------------------------------------------------------: |
+
+##### ③ 切面
+
+封装通知方法的类。
+
+| ![image-20220906212931065](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906212931065.png) |
+| ------------------------------------------------------------ |
+
+##### ④ 目标
+
+被代理的目标对象。
+
+##### ⑤ 代理
+
+向目标对象应用通知之后创建的代理对象。
+
+##### ⑥ 连接点
+
+这也是一个纯逻辑概念，不是语法定义的。 
+
+把方法排成一排，每一个横切位置看成x轴方向，把方法从上到下执行的顺序看成y轴，x轴和y轴的交叉点就是连接点。
+
+| ![image-20220906213111177](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906213111177.png) |
+| :----------------------------------------------------------: |
+
+##### ⑦ 切入点
+
+定位连接点的方式。 
+
+每个类的方法中都包含多个连接点，所以连接点是类中客观存在的事物（从逻辑上来说）。 
+
+如果把连接点看作数据库中的记录，那么切入点就是查询记录的 SQL 语句。 
+
+Spring 的 AOP 技术可以通过切入点定位到特定的连接点。 切点通过org.springframework.aop.Pointcut 接口进行描述，它使用类和方法作为连接点的查询条件。
+
+#### 3.3.3、作用
+
+- 简化代码：把方法中固定位置的重复的代码抽取出来，让被抽取的方法更专注于自己的核心功能， 提高内聚性。 
+- 代码增强：把特定的功能封装到切面类中，看哪里有需要，就往上套，被套用了切面逻辑的方法就 被切面给增强了。
+
+
+
+### 3.4、基于注解的AOP
+
+#### 3.4.1、技术说明
+
+| ![image-20220906213325410](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906213325410.png) |
+| :----------------------------------------------------------: |
+
+- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因 为这个技术要求代理对象和目标对象实现同样的接口（兄弟两个拜把子模式）。 
+- cglib：通过继承被代理的目标类（认干爹模式）实现代理，所以不需要目标类实现接口。 
+- AspectJ：本质上是静态代理，将代理逻辑“织入”被代理的目标类编译得到的字节码文件，所以最 终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
+
+#### 3.4.2、准备工作
+
+##### ① 添加依赖
+
+在IOC所需依赖基础上在加入如下依赖
+
+```xml
 ```
 
