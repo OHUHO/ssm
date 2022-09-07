@@ -4278,7 +4278,7 @@ public interface Calculator {
 ```java
 package com.jingchao.spring.aop.annotation;
 
-@
+@Component
 public class CalculatorImpl implements Calculator {
 
     @Override
@@ -4315,10 +4315,286 @@ public class CalculatorImpl implements Calculator {
 #### 3.4.3、创建切面类并配置
 
 ```java
+package com.jingchao.spring.aop.annotation;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.*;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+
+// 保证这个切面类能够放入IOC容器中
+@Component
+// 标识这是一个切面类
+@Aspect
+public class LoggerAspect {
+
+    @Pointcut("execution(* com.jingchao.spring.aop.annotation.CalculatorImpl.*(..))")
+    public void pointCut(){}
+
+    // @Before("execution(public int com.jingchao.spring.aop.annotation.CalculatorImpl.add(int, int ))")
+    @Before("pointCut()")
+    public void beforeAdviceMethod(JoinPoint joinPoint){
+        // 获取连接点对应的方法的签名信息
+        Signature signature = joinPoint.getSignature();
+        // 获取连接点对应方法的参数
+        Object[] args = joinPoint.getArgs();
+        System.out.println("LoggerAspect, 方法 " + signature.getName() + "，参数：" + Arrays.toString(args));
+    }
+
+    @After("pointCut()")
+    public void afterAdviceMethod(JoinPoint joinPoint){
+        // 获取连接点对应的方法的签名信息
+        Signature signature = joinPoint.getSignature();
+        // 获取连接点对应方法的参数
+        Object[] args = joinPoint.getArgs();
+        System.out.println("LoggerAspect, 方法 " + signature.getName()+"，执行完毕");
+    }
+
+    @AfterReturning(value = "pointCut()", returning = "result")
+    public void afterReturningAdviceMethod(JoinPoint joinPoint, Object result){
+        // 获取连接点对应的方法的签名信息
+        Signature signature = joinPoint.getSignature();
+        System.out.println("LoggerAspect, 方法 "+signature.getName() + "，结果："+ result);
+    }
+
+    @AfterThrowing(value = "pointCut()", throwing = "exception")
+    public void afterThrowAdviceMethod(JoinPoint joinPoint, Exception exception){
+        // 获取连接点对应的方法的签名信息
+        Signature signature = joinPoint.getSignature();
+        System.out.println("LoggerAspect, 方法 "+signature.getName()+"，异常: " + exception);
+    }
+
+    @Around("pointCut()")
+    public Object aroundAdviceMethod(ProceedingJoinPoint joinPoint){
+        Object result = null;
+        try {
+            System.out.println("环绕通知 ——> 前置通知");
+            // 表示目标对象方法的执行
+            result = joinPoint.proceed();
+            System.out.println("环绕通知 ——> 返回通知");
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.out.println("环绕通知 ——> 异常通知");
+        }finally {
+            System.out.println("环绕通知 ——> 后置通知");
+        }
+        return result;
+    }
+
+}
 ```
 
 在spring的配置文件中配置：
 
 ```xml
+<context:component-scan base-package="com.jingchao.spring.aop.annotation"/>
+
+<!-- 开启基于注解的AOP -->
+<aop:aspectj-autoproxy/>
 ```
+
+> 注意AOP注意事项
+>
+> 1. 切面类和目标类都需要交给IOC容器管理
+> 2. 切面类必须通过@Aspect注解标识为一个切面
+> 3. 在Spring的配置文件中设置<aop:aspectj-autoproxy/>标签开启居于注解的AOP
+
+
+
+#### 3.4.4、各种通知
+
+- 前置通知：使用@Before注解标识，在被代理的目标方法前执行 
+- 返回通知：使用@AfterReturning注解标识，在被代理的目标方法成功结束后执行（寿终正寝） 
+- 异常通知：使用@AfterThrowing注解标识，在被代理的目标方法异常结束后执行（死于非命） 
+- 后置通知：使用@After注解标识，在被代理的目标方法最终结束后执行（盖棺定论） 
+- 环绕通知：使用@Around注解标识，使用try...catch...finally结构围绕整个被代理的目标方法，包 括上面四种通知对应的所有位置
+
+各种通知的执行顺序
+
+> - Spring版本5.3.x以前： 
+>     - 前置通知 
+>     - 目标操作 
+>     - 后置通知 
+>     - 返回通知或异常通知
+> - Spring版本5.3.x以后： 
+>     - 前置通知 
+>     - 目标操作 
+>     - 返回通知或异常通知 
+>     - 后置通知
+
+
+
+#### 3.4.5、切入点表达式语法
+
+##### ① 作用
+
+| ![image-20220907095710129](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220907095710129.png) |
+| :----------------------------------------------------------: |
+
+##### ② 语法细节
+
+- 用*号代替“权限修饰符”和“返回值”部分表示“权限修饰符”和“返回值”不限 
+- *在包名的部分，一个“ * ”号只能代表包的层次结构中的一层，表示这一层是任意的。 
+    - 例如：*.Hello匹配com.Hello，不匹配com.jingchao.Hello 
+- 在包名的部分，使用“*..”表示包名任意、包的层次深度任意 
+- 在类名的部分，类名部分整体用*号代替，表示类名任意
+- 在类名的部分，可以使用*号代替类名的一部分 
+    - 例如：*Service匹配所有名称以Service结尾的类或接口 
+- 在方法名部分，可以使用*号表示方法名任意 
+- 在方法名部分，可以使用*号代替方法名的一部分
+    - 例如：*Operation匹配所有方法名以Operation结尾的方法 
+- 在方法参数列表部分，使用(..)表示参数列表任意 
+- 在方法参数列表部分，使用(int,..)表示参数列表以一个int类型的参数开头 
+- 在方法参数列表部分，基本数据类型和对应的包装类型是不一样的 
+    - 切入点表达式中使用 int 和实际方法中 Integer 是不匹配的 
+- 在方法返回值部分，如果想要明确指定一个返回值类型，那么必须同时写明权限修饰符 
+    - 例如：execution(public int ..Service.*(.., int)) 正确 
+    - 例如：execution(* int ..Service.*(.., int)) 错误
+
+| ![image-20220907100832412](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220907100832412.png) |
+| :----------------------------------------------------------: |
+
+
+
+#### 3.4.6、重用切入点表达式
+
+##### ① 声明
+
+```java
+@Pointcut("execution(* com.jingchao.spring.aop.annotation.CalculatorImpl.*(..))")
+public void pointCut(){}
+```
+
+##### ② 在同一个切面中使用
+
+```java
+@Before("pointCut()")
+public void beforeAdviceMethod(JoinPoint joinPoint){
+    // 获取连接点对应的方法的签名信息
+    Signature signature = joinPoint.getSignature();
+    // 获取连接点对应方法的参数
+    Object[] args = joinPoint.getArgs();
+    System.out.println("LoggerAspect, 方法 " + signature.getName() + "，参数：" + Arrays.toString(args));
+}
+```
+
+##### ③ 在不同切面中使用
+
+```java
+@Before("com.jingchao.spring.aop.annotation.LoggerAspect.pointCut()")
+public void beforeMethod(JoinPoint joinPoint){
+    String methodName = joinPoint.getSignature().getName();
+	String args = Arrays.toString(joinPoint.getArgs());
+	System.out.println("Logger——>前置通知，方法名："+methodName+"，参数："+args);
+}
+```
+
+
+
+#### 3.4.7、获取通知的相关消息
+
+##### ① 获取连接点消息
+
+获取连接点消息可以在通知方法的参数位置设置joinPoint类型的形参
+
+```java
+@Before("pointCut()")
+public void beforeAdviceMethod(JoinPoint joinPoint){
+    // 获取连接点对应的方法的签名信息
+    Signature signature = joinPoint.getSignature();
+    // 获取连接点对应方法的参数
+    Object[] args = joinPoint.getArgs();
+    System.out.println("LoggerAspect, 方法 " + signature.getName() + "，参数：" + Arrays.toString(args));
+}
+```
+
+##### ② 获取目标方法的返回值
+
+@AfterReturning中的属性returning，用来将通知方法的某个形参，接收目标方法的返回值
+
+```java
+@AfterReturning(value = "pointCut()", returning = "result")
+public void afterReturningAdviceMethod(JoinPoint joinPoint, Object result){
+    // 获取连接点对应的方法的签名信息
+    Signature signature = joinPoint.getSignature();
+    System.out.println("LoggerAspect, 方法 "+signature.getName() + "，结果："+ result);
+}
+```
+
+##### ③ 获取目标方法的异常
+
+@AfterThrowing中的属性throwing，用来将通知方法的某个形参，接收目标方法的异常
+
+```java
+@AfterThrowing(value = "pointCut()", throwing = "exception")
+public void afterThrowAdviceMethod(JoinPoint joinPoint, Exception exception){
+    // 获取连接点对应的方法的签名信息
+    Signature signature = joinPoint.getSignature();
+    System.out.println("LoggerAspect, 方法 "+signature.getName()+"，异常: " + exception);
+}
+```
+
+
+
+#### 3.4.8、环绕通知
+
+```java
+@Around("pointCut()")
+public Object aroundAdviceMethod(ProceedingJoinPoint joinPoint){
+    String methodName = joinPoint.getSignature().getName();
+	String args = Arrays.toString(joinPoint.getArgs());
+    Object result = null;
+    try {
+        System.out.println("环绕通知 ——> 前置通知");
+        // 表示目标对象方法的执行
+        result = joinPoint.proceed();
+        System.out.println("环绕通知 ——> 返回通知");
+    } catch (Throwable e) {
+        e.printStackTrace();
+        System.out.println("环绕通知 ——> 异常通知");
+    }finally {
+        System.out.println("环绕通知 ——> 后置通知");
+    }
+    return result;
+}
+```
+
+
+
+#### 3.4.9、切面的优先级
+
+相同目标方法上同时存在多个切面时，切面的优先级控制切面的内外嵌套顺序。 
+
+- 优先级高的切面：外面 
+- 优先级低的切面：里面 
+
+使用@Order注解可以控制切面的优先级
+
+- @Order(较小的数)：优先级高 
+- @Order(较大的数)：优先级低
+
+| ![image-20220907102740128](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220907102740128.png) |
+| :----------------------------------------------------------: |
+
+
+
+### 3.5、基于XML的AOP（了解）
+
+#### 3.5.1、准备工作
+
+参考基于注解的AOP环境
+
+#### 3.5.1、实现
+
+```xml
+```
+
+
+
+
+
+
 
