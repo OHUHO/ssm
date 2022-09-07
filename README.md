@@ -4234,15 +4234,90 @@ Spring 的 AOP 技术可以通过切入点定位到特定的连接点。 切点�
 | ![image-20220906213325410](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906213325410.png) |
 | :----------------------------------------------------------: |
 
-- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因 为这个技术要求代理对象和目标对象实现同样的接口（兄弟两个拜把子模式）。 
+- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因 为这个技术要求**代理对象和目标对象实现同样的接口**（兄弟两个拜把子模式）。 
 - cglib：通过继承被代理的目标类（认干爹模式）实现代理，所以不需要目标类实现接口。 
-- AspectJ：本质上是静态代理，将代理逻辑“织入”被代理的目标类编译得到的字节码文件，所以最 终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
+- AspectJ：本质上是静态代理，**将代理逻辑“织入”被代理的目标类编译得到的字节码文件**，所以最 终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
 
 #### 3.4.2、准备工作
 
 ##### ① 添加依赖
 
 在IOC所需依赖基础上在加入如下依赖
+
+```xml
+<!-- spring-aspects会帮助我们传递过来aspectjweaver -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aspects</artifactId>
+    <version>5.3.22</version>
+</dependency>
+```
+
+##### ② 准备被代理的目标资源
+
+接口：
+
+```java
+package com.jingchao.spring.aop.annotation;
+
+public interface Calculator {
+
+    int add(int i, int j);
+
+    int sub(int i, int j);
+
+    int mul(int i, int j);
+
+    int div(int i, int j);
+
+}
+```
+
+实现类：
+
+```java
+package com.jingchao.spring.aop.annotation;
+
+@
+public class CalculatorImpl implements Calculator {
+
+    @Override
+    public int add(int i, int j) {
+        int result = i + j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int sub(int i, int j) {
+        int result = i - j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int mul(int i, int j) {
+        int result = i * j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+    @Override
+    public int div(int i, int j) {
+        int result = i / j;
+        System.out.println("方法内部 result = " + result);
+        return result;
+    }
+
+}
+```
+
+#### 3.4.3、创建切面类并配置
+
+```java
+```
+
+在spring的配置文件中配置：
 
 ```xml
 ```

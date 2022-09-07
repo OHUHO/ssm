@@ -16,6 +16,7 @@
         <module name="mybatis_cache" />
         <module name="spring_ioc_xml" />
         <module name="spring_ioc_annotation" />
+        <module name="spring_aop" />
       </profile>
     </annotationProcessing>
   </component>
