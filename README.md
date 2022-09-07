@@ -4590,11 +4590,223 @@ public Object aroundAdviceMethod(ProceedingJoinPoint joinPoint){
 #### 3.5.1、实现
 
 ```xml
+<!-- 扫描组件 -->
+<context:component-scan base-package="com.jingchao.spring.aop.xml"></context:component-scan>
+
+<aop:config>
+    <!-- 设置一个公共切入点表达式 -->
+    <aop:pointcut id="pointCut" expression="execution(* com.jingchao.spring.aop.xml.CalculatorImpl.*(..))"/>
+    <!-- 将IOC容器中某个bean设置为切面 -->
+    <aop:aspect ref="loggerAspect">
+        <aop:before method="beforeAdviceMethod" pointcut-ref="pointCut"/>
+        <aop:after method="afterAdviceMethod" pointcut-ref="pointCut"/>
+        <aop:after-returning method="afterReturningAdviceMethod" returning="result" pointcut-ref="pointCut"/>
+        <aop:after-throwing method="afterThrowAdviceMethod" throwing="exception" pointcut-ref="pointCut"/>
+        <aop:around method="aroundAdviceMethod" pointcut-ref="pointCut"/>
+    </aop:aspect>
+</aop:config>
+
+<aop:config>
+    <aop:aspect ref="validateAspect" order="0">
+        <aop:before method="beforeMethod" pointcut-ref="pointCut"/>
+    </aop:aspect>
+</aop:config>
+```
+
+
+
+## 4、声明式事务
+
+### 4.1、JdbcTemplate
+
+#### 4.1.1、简介
+
+Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据库操作
+
+#### 4.1.2、准备工作
+
+##### ① 加入依赖
+
+```xml
+<dependencies>
+    <!-- 基于Maven依赖传递性，导入spring-context依赖即可导入当前所有需要的jar包 -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>5.3.19</version>
+    </dependency>
+
+    <!-- Spring持久化层支持jar包 -->
+    <!--  Spring 在执行持久化层操作、与持久化层技术进行整合过程中，需要使用orm、jdbc、tx三个jar包 -->
+    <!-- 导入 orm 包就可以通过 Maven 的依赖传递性把其他两个也导入 -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>5.3.22</version>
+    </dependency>
+
+    <!-- Spring 测试相关 -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>5.3.22</version>
+    </dependency>
+
+    <!-- MySQL 驱动 -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.28</version>
+    </dependency>
+
+
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.2.9</version>
+    </dependency>
+
+    <!-- junit测试 -->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+    </dependency>
+
+</dependencies>
+```
+
+##### ② 创建jdbc.properites
+
+```properties
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/ssm?serverTimezone=UTC
+jdbc.username=root
+jdbc.password=123456
+```
+
+##### ③ 配置Spring的配置文件
+
+```xml
+<!-- 引入jdbc.properties文件 -->
+<context:property-placeholder location="jdbc.properties"/>
+<!-- 配置数据源 -->
+<bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${jdbc.driver}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+</bean>
+<!-- 配置JdbcTemplate -->
+<bean class="org.springframework.jdbc.core.JdbcTemplate">
+    <property name="dataSource" ref="druidDataSource"/>
+</bean>
+```
+
+#### 4.1.3、测试
+
+##### ① 在测试类装配JdbcTemplate
+
+```java
+// 指定当前环境测试类在Spring的测试环境中执行，此时可以通过注入的方式直接获取IOC容器中的bean
+@RunWith(SpringJUnit4ClassRunner.class)
+// 设置Spring测试环境的配置文件
+@ContextConfiguration("classpath:spring-jdbc.xml")
+public class JdbcTemplateTest {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+}
+```
+
+##### ② 测试增删改功能
+
+```java
+@Test
+public void testInsert(){
+	String sql = "insert into t_user values(null, ?, ?, ?, ?, ?)";
+	jdbcTemplate.update(sql,"root","1236","18","女","j8912@qq.com");
+}
+```
+
+##### ③ 查询一条数据为实体类对象
+
+```java
+@Test
+public void testGetUserById(){
+    String sql = "select * from t_user where id = ?";
+    User user = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(User.class),4);
+    System.out.println(user);
+}
+```
+
+##### ④ 查询多条数据为一个list集合
+
+```java
+@Test
+public void testGetAllUser(){
+    String sql = "select * from t_user";
+    List<User> userList = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
+    userList.forEach(System.out::println);
+}
+```
+
+##### ⑤ 查询单行单列的值
+
+```java
+@Test
+public void testCount(){
+    String sql = "select count(*) from t_user";
+    Integer integer = jdbcTemplate.queryForObject(sql, Integer.class);
+    System.out.println(integer);
+}
 ```
 
 
 
 
+
+### 4.2、声明式事务概念
+
+#### 4.2.1、编程式事务
+
+事务功能的相关操作全部通过自己编写代码实现
+
+```java
+```
+
+编程式的实现方法存在缺陷
+
+- 细节没有被屏蔽：具体操作过程中，所有细节都需要程序员自己来完成，比较繁琐。 
+- 代码复用性不高：如果没有有效抽取出来，每次实现功能都需要自己编写代码，代码就没有得到复 用。
+
+#### 4.2.2、声明式事务
+
+既然事务控制的代码有规律可循，代码的结构基本是确定的，所以框架就可以将固定模式的代码抽取出 来，进行相关的封装。 
+
+封装起来后，我们只需要在配置文件中进行简单的配置即可完成操作。 
+
+- 好处1：提高开发效率 
+- 好处2：消除了冗余的代码 
+- 好处3：框架会综合考虑相关领域中在实际开发环境下有可能遇到的各种问题，进行了健壮性、性 能等各个方面的优化 
+
+所以，我们可以总结下面两个概念： 
+
+- **编程式**：**自己写代码**实现功能 
+- **声明式**：通过**配置**让**框架**实现功能
+
+
+
+### 4.3、基于注解的声明式事务
+
+#### 4.3.1、准备工作
+
+##### ① 加入依赖
+
+```xml
+```
 
 
 
