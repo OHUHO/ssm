@@ -5298,16 +5298,54 @@ public void buyBook(Integer userId, Integer bookId) {
 创建CheckoutService接口
 
 ```java
+package com.jingchao.spring.service;
+
+public interface CheckoutService {
+
+    /**
+     * 结账
+     * @param userId
+     * @param bookIds
+     */
+    void checkout(Integer userId, Integer[] bookIds);
+}
 ```
 
 创建CheckoutService实现类
 
 ```java
+package com.jingchao.spring.service.impl;
+
+import com.jingchao.spring.service.BookService;
+import com.jingchao.spring.service.CheckoutService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class CheckoutServiceImpl implements CheckoutService {
+
+    @Autowired
+    private BookService bookService;
+
+    @Override
+    @Transactional
+    public void checkout(Integer userId, Integer[] bookIds) {
+        for (Integer bookId : bookIds){
+            bookService.buyBook(userId,bookId);
+        }
+    }
+}
 ```
 
 在BookController中添加如下方法
 
 ```java
+@Autowired
+private CheckoutService checkoutService;
+public void checkout(Integer userId, Integer[] bookIds){
+    checkoutService.checkout(userId, bookIds);
+}
 ```
 
 在数据库中将用户的余额修改为100元
@@ -5335,11 +5373,41 @@ public void buyBook(Integer userId, Integer bookId) {
 将Spring配置文件中去掉tx:annotation-driven 标签，并添加配置：
 
 ```xml
+<aop:config>
+    <!-- 配置事务通知和切入点表达式 -->
+    <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.atguigu.spring.tx.xml.service.impl.*.*(..))"></aop:advisor>
+</aop:config>
+<!-- tx:advice标签：配置事务通知 -->
+<!-- id属性：给事务通知标签设置唯一标识，便于引用 -->
+<!-- transaction-manager属性：关联事务管理器 -->
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+        <!-- tx:method标签：配置具体的事务方法 -->
+        <!-- name属性：指定方法名，可以使用星号代表多个字符 -->
+        <tx:method name="get*" read-only="true"/>
+        <tx:method name="query*" read-only="true"/>
+        <tx:method name="find*" read-only="true"/>
+        <!-- read-only属性：设置只读属性 -->
+        <!-- rollback-for属性：设置回滚的异常 -->
+        <!-- no-rollback-for属性：设置不回滚的异常 -->
+        <!-- isolation属性：设置事务的隔离级别 -->
+        <!-- timeout属性：设置事务的超时属性 -->
+        <!-- propagation属性：设置事务的传播行为 -->
+        <tx:method name="save*" read-only="false" rollback-for="java.lang.Exception" propagation="REQUIRES_NEW"/>
+        <tx:method name="update*" read-only="false" rollback-for="java.lang.Exception" propagation="REQUIRES_NEW"/>
+        <tx:method name="delete*" read-only="false" rollback-for="java.lang.Exception" propagation="REQUIRES_NEW"/>
+    </tx:attributes>
+</tx:advice>
 ```
 
 注意：基于xml实现声明式事务，必须引入aspect的依赖
 
 ```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aspects</artifactId>
+    <version>5.3.22</version>
+</dependency>
 ```
 
 
