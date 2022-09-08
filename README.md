@@ -5152,6 +5152,15 @@ public class TxByAnnotationTest {
 ##### ② 使用方式
 
 ```java
+@Transactional(readOnly = true)
+public void buyBook(Integer userId, Integer bookId) {
+    // 查询图书的价格
+    Integer price = bookDao.getPriceByBookId(bookId);
+    // 更新图书的库存
+    bookDao.updateStock(bookId);
+    // 更新用户余额
+    bookDao.updateBalance(userId, price);
+}
 ```
 
 ##### ③ 注意
@@ -5171,13 +5180,27 @@ Caused by: java.sql.SQLException: Connection is read-only. Queries leading to da
 ##### ② 使用方式
 
 ```java
+@Transactional(timeout = 3)
+public void buyBook(Integer userId, Integer bookId) {
+    try {
+        TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    // 查询图书的价格
+    Integer price = bookDao.getPriceByBookId(bookId);
+    // 更新图书的库存
+    bookDao.updateStock(bookId);
+    // 更新用户余额
+    bookDao.updateBalance(userId, price);
+}
 ```
 
 ##### ③ 观察结果
 
 执行过程中抛出异常： 
 
-org.springframework.transaction.TransactionTimedOutException: Transaction timed out: deadline was Fri Jun 04 16:25:39 CST 2022
+org.springframework.transaction.TransactionTimedOutException: Transaction timed out: deadline was Thu Sep 08 14:57:12 CST 2022
 
 #### 4.3.7、事务属性：回滚策略
 
@@ -5195,6 +5218,17 @@ org.springframework.transaction.TransactionTimedOutException: Transaction timed 
 ##### ② 使用方式
 
 ```java
+@Transactional(noRollbackFor = ArithmeticException.class)
+public void buyBook(Integer userId, Integer bookId) {
+    // 查询图书的价格
+    Integer price = bookDao.getPriceByBookId(bookId);
+    // 更新图书的库存
+    bookDao.updateStock(bookId);
+    // 更新用户余额
+    bookDao.updateBalance(userId, price);
+
+    System.out.println(1/0);
+}
 ```
 
 ##### ③ 观察结果
@@ -5246,6 +5280,11 @@ org.springframework.transaction.TransactionTimedOutException: Transaction timed 
 ##### ② 使用方式
 
 ```java
+@Transactional(isolation = Isolation.DEFAULT)			//使用数据库默认的隔离级别
+@Transactional(isolation = Isolation.READ_UNCOMMITTED)	//读未提交
+@Transactional(isolation = Isolation.READ_COMMITTED)	//读已提交
+@Transactional(isolation = Isolation.REPEATABLE_READ)	//可重复读
+@Transactional(isolation = Isolation.SERIALIZABLE)		//串行化
 ```
 
 #### 4.3.9、事务属性：事务传播行为
