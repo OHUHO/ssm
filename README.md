@@ -5688,3 +5688,75 @@ public String hello(){
 
 ## 3、@RequestMapping注解
 
+### 3.1、@RequestMappering注解的功能
+
+从注解名称上我们可以看到，@RequestMapping注解的作用就是将请求和处理请求的控制器方法关联 起来，建立映射关系。 
+
+SpringMVC 接收到指定的请求，就会来找到在映射关系中对应的控制器方法来处理这个请求。
+
+### 3.2、@RequestMapping注解的位置
+
+@RequestMapping标识一个类：设置映射请求的请求路径的初始信息 
+
+@RequestMapping标识一个方法：设置映射请求请求路径的具体信息
+
+```java
+package com.jingchao.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping("/test")
+public class TestRequestMappingController {
+
+    @RequestMapping("/hello")
+    public String hello(){
+        return "success";
+    }
+}
+```
+
+### 3.3、@RequestMapping注解的value属性
+
+@RequestMapping注解的value属性通过请求的请求地址匹配请求映射 
+
+@RequestMapping注解的value属性是一个字符串类型的数组，表示该请求映射能够匹配多个请求地址 所对应的请求 
+
+@RequestMapping注解的value属性必须设置，至少通过请求地址匹配请求映射
+
+```java
+
+```
+
+### 3.4、@RequestMapping注解的method属性
+
+@RequestMapping注解的method属性通过请求的请求方式（get或post）匹配请求映射 
+
+@RequestMapping注解的method属性是一个RequestMethod类型的数组，表示该请求映射能够匹配 多种请求方式的请求 
+
+若当前请求的请求地址满足请求映射的value属性，但是请求方式不满足method属性，则浏览器报错 405：Request method 'POST' not supported
+
+```xml
+```
+
+```java
+```
+
+> 注： 
+>
+> 1. 对于处理指定请求方式的控制器方法，SpringMVC中提供了@RequestMapping的派生注解 
+>
+>     - 处理get请求的映射-->@GetMapping 
+>     - 处理post请求的映射-->@PostMapping 
+>     - 处理put请求的映射-->@PutMapping 
+>     - 处理delete请求的映射-->@DeleteMapping 
+>
+> 2. 常用的请求方式有get，post，put，delete 
+>
+>     但是目前浏览器只支持get和post，若在form表单提交时，为method设置了其他请求方式的字符 串（put或delete），则按照默认的请求方式get处理 
+>
+>     若要发送put和delete请求，则需要通过spring提供的过滤器HiddenHttpMethodFilter，在 RESTful部分会讲到
+
+### 3.5、@RequestMapping注解的params属性（了解）
+

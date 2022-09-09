@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="spring_helloworld" />
         <module name="mybatis_resultMap" />
+        <module name="spring_mvc_demo" />
         <module name="mybatis_helloworld" />
         <module name="spring_mvc_helloworld" />
         <module name="spring_transaction" />

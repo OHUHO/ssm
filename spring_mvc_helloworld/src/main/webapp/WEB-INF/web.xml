@@ -8,6 +8,13 @@
 	<servlet>
 		<servlet-name>SpringMVC</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<!-- 设置SpringMVC配置文件的位置和名称 -->
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:springmvc.xml</param-value>
+		</init-param>
+		<!-- 将DispatcherServlet的初始化时间提前到服务器启动时 -->
+		<load-on-startup>1</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
