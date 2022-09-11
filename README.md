@@ -67,6 +67,8 @@ MyBatis版本：MyBatis 3.5.10
 >
 > 否则运行测试用例报告如下错误： java.sql.SQLException: The server time zone value 'ÖÐ¹ú±ê×¼Ê±¼ä' is unrecognized or represents more
 
+
+
 ### 2.2、创建maven工程
 
 #### ① 打包方式：jar
@@ -101,11 +103,9 @@ MyBatis版本：MyBatis 3.5.10
 
 
 
-
-
 ### 2.3、创建MyBatis的核心配置文件
 
-> 习惯上命名为mybatis-config.xml，这个文件名仅仅只是建议，并非强制要求。将来整合Spring 之后，这个配置文件可以省略，所以大家操作时可以直接复制、粘贴。 
+> 习惯上命名为mybatis-config.xml，这个文件名仅仅只是建议，并非强制要求。将来整合Spring 之后，这个配置文件可以省略。
 >
 > 核心配置文件主要用于配置连接数据库的环境以及MyBatis的全局配置信息 
 >
@@ -187,9 +187,9 @@ public interface UserMapper {
 >
 > 2、 MyBatis中可以面向接口操作数据，要保证两个一致：
 >
->  a> mapper接口的全类名和映射文件的命名空间（namespace）保持一致 
+>  -  mapper接口的全类名和映射文件的命名空间（namespace）保持一致 
 >
-> b> mapper接口中方法的方法名和映射文件中编写SQL的标签的id属性保持一致
+> - mapper接口中方法的方法名和映射文件中编写SQL的标签的id属性保持一致
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -718,9 +718,9 @@ public class SqlSessionUtil {
 
 > MyBatis获取参数值的两种方式：${} 和 #{}
 >
-> ${} 的本质就是字符串拼接
+> ${} 的本质就是**字符串拼接**
 >
-> #{}的本质就是占位符赋值 
+> #{}的本质就是**占位符赋值** 
 >
 > ${} 使用字符串拼接的方式拼接sql，若为字符串类型或日期类型的字段进行赋值时，需要手动加单 引 号；但是#{}使用占位符赋值的方式拼接sql，此时为字符串类型或日期类型的字段进行赋值时， 可以自动添加单引号
 
@@ -758,7 +758,7 @@ public class SqlSessionUtil {
 
     > 若mapper接口中的方法参数为多个时 
     >
-    > 此时MyBatis会自动将这些参数放在一个map集合中，以arg0,arg1...为键，以参数为值；以 param1,param2...为键，以参数为值；因此只需要通过${}和#{}访问map集合的键就可以获取相 对应的值，注意${}需要手动加单引号
+    > 此时MyBatis会自动将这些参数放在一个map集合中，以arg0,arg1...为键，以参数为值；以 param1,param2...为键，以参数为值；因此只需要通过${}和#{}访问map集合的键就可以获取相对应的值，注意${}需要手动加单引号
 
 - ${} 示例
 
@@ -794,7 +794,7 @@ public class SqlSessionUtil {
 
     > 若mapper接口中的方法需要的参数为多个时
     >
-    > 此时可以手动创建map集合，将这些数据放在 map中 只需要通过${}和#{}访问map集合的键就可以获取相对应的值，注意${}需要手动加单引号
+    > 此时可以手动创建map集合，将这些数据放在 map中，只需要通过${}和#{}访问map集合的键就可以获取相对应的值，注意${}需要手动加单引号
 
 - 手动创建map
 
@@ -853,7 +853,7 @@ public class SqlSessionUtil {
 
     
 
-### 5.5、使用@Param标识参数
+### 5.5、使用@Param标识参数（Im）
 
 - 说明
 
@@ -1519,7 +1519,7 @@ Dept getDeptAndEmpByDeptId(@Param("deptId") Integer deptId);
 
 - 说明
 
-    > choose、when、otherwise相当于java中的if...else if...else
+    > choose、when、otherwise相当于java中的 if...else if...else
     >
     > 其中when至少设置一个，otherwise至多设置一个
 
@@ -2087,7 +2087,7 @@ if(count % pageSize != 0){
 >
 > Spring 是轻量级的框架，其基础版本只有 2 MB 左右的大小。 
 >
-> Spring 框架的核心特性是可以用于开发任何 Java 应用程序，但是在 Java EE 平台上构建 web 应 用程序是需要扩展的。 Spring 框架的目标是使 J2EE 开发变得更容易使用，通过启用基于 POJO 编程模型来促进良好的编程实践。
+> Spring 框架的核心特性是可以用于开发任何 Java 应用程序，但是在 Java EE 平台上构建 web 应用程序是需要扩展的。 Spring 框架的目标是使 J2EE 开发变得更容易使用，通过启用基于 POJO 编程模型来促进良好的编程实践。
 
 ### 1.2、Spring家族
 
@@ -2095,17 +2095,17 @@ if(count % pageSize != 0){
 
 ### 1.3、Spring Framework
 
-Spring 基础框架，可以视为 Spring 基础设施，基本上任何其他 Spring 项目都是以 Spring Framework 为基础的。
+Spring Framework 基础框架，可以视为 Spring 基础设施，基本上任何其他 Spring 项目都是以 Spring Framework 为基础的。
 
 #### 1.3.1、Spring Framework特性
 
 - 非侵入式：使用 Spring Framework 开发应用程序时，Spring 对应用程序本身的结构影响非常 小。对领域模型可以做到零污染；对功能性组件也只需要使用几个简单的注解进行标记，完全不会 破坏原有结构，反而能将组件结构进一步简化。这就使得基于 Spring Framework 开发应用程序 时结构清晰、简洁优雅。 
-- 控制反转：IOC——Inversion of Control，翻转资源获取方向。把自己创建资源、向环境索取资源 变成环境将资源准备好，我们享受资源注入。 
-- 面向切面编程：AOP——Aspect Oriented Programming，在不修改源代码的基础上增强代码功 能。 
+- 控制反转：**IOC**——Inversion of Control，翻转资源获取方向。把自己创建资源、向环境索取资源 变成环境将资源准备好，我们享受资源注入。 
+- 面向切面编程：**AOP**——Aspect Oriented Programming，在不修改源代码的基础上增强代码功 能。 
 - 容器：Spring IOC 是一个容器，因为它包含并且管理组件对象的生命周期。组件享受到了容器化 的管理，替程序员屏蔽了组件创建过程中的大量细节，极大的降低了使用门槛，大幅度提高了开发 效率。 
 - 组件化：Spring 实现了使用简单的组件配置组合成一个复杂的应用。在 Spring 中可以使用 XML 和 Java 注解组合这些对象。这使得我们可以基于一个个功能明确、边界清晰的组件有条不紊的搭 建超大型复杂应用系统。 
 - 声明式：很多以前需要编写代码才能实现的功能，现在只需要声明需求即可由框架代为实现。 
-- 一站式：在 IOC 和 AOP 的基础上可以整合各种企业应用的开源框架和优秀的第三方类库。而且 Spring 旗下的项目已经覆盖了广泛领域，很多方面的功能性需求可以在 Spring Framework 的基 础上全部使用 Spring 来实现。
+- 一站式：在 IOC 和 AOP 的基础上可以整合各种企业应用的开源框架和优秀的第三方类库。而且 Spring 旗下的项目已经覆盖了广泛领域，很多方面的功能性需求可以在 Spring Framework 的基础上全部使用 Spring 来实现。
 
 #### 1.3.2、Spring Framework五大功能模块
 
@@ -2129,15 +2129,15 @@ IOC：Inversion of Control，翻译过来是反转控制。
 
 ##### ① 获取资源的传统方式
 
- 自己做饭：买菜、洗菜、择菜、改刀、炒菜，全过程参与，费时费力，必须清楚了解资源创建整个过程 中的全部细节且熟练掌握。 
+ 自己做饭：买菜、洗菜、择菜、改刀、炒菜，全过程参与，费时费力，必须清楚了解资源创建整个过程中的全部细节且熟练掌握。 
 
-在应用程序中的组件需要获取资源时，传统的方式是组件主动的从容器中获取所需要的资源，在这样的 模式下开发人员往往需要知道在具体容器中特定资源的获取方式，增加了学习成本，同时降低了开发效 率。 
+在应用程序中的组件需要获取资源时，传统的方式是组件主动的从容器中获取所需要的资源，在这样的模式下开发人员往往需要知道在具体容器中特定资源的获取方式，增加了学习成本，同时降低了开发效 率。 
 
 ##### ② 反转控制方式获取资源 
 
 点外卖：下单、等、吃，省时省力，不必关心资源创建过程的所有细节。 
 
-反转控制的思想完全颠覆了应用程序组件获取资源的传统方式：反转了资源的获取方向——改由容器主 动的将资源推送给需要的组件，开发人员不需要知道容器是如何创建资源对象的，只需要提供接收资源 的方式即可，极大的降低了学习成本，提高了开发的效率。这种行为也称为查找的被动形式。 
+反转控制的思想完全颠覆了应用程序组件获取资源的传统方式：反转了资源的获取方向——改由容器主动的将资源推送给需要的组件，开发人员不需要知道容器是如何创建资源对象的，只需要提供接收资源的方式即可，极大的降低了学习成本，提高了开发的效率。这种行为也称为查找的被动形式。 
 
 ##### ③ DI 
 
@@ -2161,11 +2161,8 @@ BeanFactory 的子接口，提供了更多高级特性。面向 Spring 的使用
 
 ##### ③ ApplicationContext的主要实现类
 
-![image-20220904165715743](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220904165715743.png)
-
-​		
-
-​		
+| ![image-20220904165715743](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220904165715743.png) |
+| :----------------------------------------------------------: |
 
 | 类型名                          | 简介                                                         |
 | ------------------------------- | ------------------------------------------------------------ |
@@ -2217,7 +2214,10 @@ public class HelloWorld {
 
 ##### ④ 创建Spring的配置文件
 
-![image-20220904171534968](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220904171534968.png)
+| ![image-20220904171534968](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220904171534968.png) |
+| ------------------------------------------------------------ |
+
+
 
 ##### ⑤ 在Spring的配置文件中配置bean
 
@@ -2246,7 +2246,6 @@ public void test(){
     // 获取IOC容器中的bean
     HelloWorld helloworld = (HelloWorld) ioc.getBean("helloworld");
     helloworld.sayHello();
-
 }
 ```
 
@@ -2330,7 +2329,7 @@ public void testIOC(){
 
 ##### ⑥ 结论
 
-根据类型来获取bean时，在满足bean唯一性的前提下，其实只是看：『对象 instanceof 指定的类 型』的返回结果，只要返回的是true就可以认定为和类型匹配，能够获取到。
+根据类型来获取bean时，在满足bean唯一性的前提下，其实只是看：『对象 instanceof 指定的类型』的返回结果，只要返回的是true就可以认定为和类型匹配，能够获取到。
 
 
 
@@ -2486,7 +2485,7 @@ public void testDI(){
 >
 > 声明一个变量a，初始化为10，此时a就不代表字母a了，而是作为一个变量的名字。当我们引用a 的时候，我们实际上拿到的值是10。 
 >
-> 而如果a是带引号的：'a'，那么它现在不是一个变量，它就是代表a这个字母本身，这就是字面 量。所以字面量没有引申含义，就是我们看到的这个数据本身。
+> 而如果a是带引号的：'a'，那么它现在不是一个变量，它就是代表a这个字母本身，这就是字面量。所以字面量没有引申含义，就是我们看到的这个数据本身。
 
 ```xml
 <!-- 使用value属性给bean的属性赋值时，Spring会把value属性的值看做字面量 -->
@@ -3474,7 +3473,7 @@ public void testAutowire(){
 
 Spring 为了知道程序员在哪些地方标记了什么注解，就需要通过扫描的方式，来进行检测。然后根据注 解进行后续操作。
 
-##### 是那 新建Maven Module
+##### ③ 新建Maven Module
 
 ```xml
 <dependencies>
@@ -3589,7 +3588,7 @@ public class UserDaoImpl implements UserDao {
 ```xml
 <context:component-scan base-package="com.jingchao.spring">
 	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-        <!-- <context:exclude-filter type="assignable" expression="com.jingchao.spring.controller.UserController"/> -->
+    <!-- <context:exclude-filter type="assignable" expression="com.jingchao.spring.controller.UserController"/> -->
 </context:component-scan>
 ```
 
@@ -4091,7 +4090,7 @@ public  void testProxy(){
 #### 3.2.3、动态代理
 
 | ![image-20220906205802715](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906205802715.png) |
-| ------------------------------------------------------------ |
+| :----------------------------------------------------------: |
 
 生产代理对象的工厂类
 
@@ -4160,7 +4159,7 @@ public  void testProxy(){
 
 #### 3.3.1、概述
 
-AOP（Aspect Oriented Programming）是一种设计思想，是软件设计领域中的面向切面编程，它是面 向对象编程的一种补充和完善，它以通过预编译方式和运行期动态代理方式实现在不修改源代码的情况 下给程序动态统一添加额外功能的一种技术
+AOP（Aspect Oriented Programming）是一种设计思想，是软件设计领域中的面向切面编程，它是面向对象编程的一种补充和完善，它以通过预编译方式和运行期动态代理方式实现在不修改源代码的情况 下给程序动态统一添加额外功能的一种技术。
 
 #### 3.3.2、相关术语
 
@@ -4234,9 +4233,9 @@ Spring 的 AOP 技术可以通过切入点定位到特定的连接点。 切点�
 | ![image-20220906213325410](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220906213325410.png) |
 | :----------------------------------------------------------: |
 
-- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因 为这个技术要求**代理对象和目标对象实现同样的接口**（兄弟两个拜把子模式）。 
+- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因为这个技术要求**代理对象和目标对象实现同样的接口**（兄弟两个拜把子模式）。 
 - cglib：通过继承被代理的目标类（认干爹模式）实现代理，所以不需要目标类实现接口。 
-- AspectJ：本质上是静态代理，**将代理逻辑“织入”被代理的目标类编译得到的字节码文件**，所以最 终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
+- AspectJ：本质上是静态代理，**将代理逻辑“织入”被代理的目标类编译得到的字节码文件**，所以最终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
 
 #### 3.4.2、准备工作
 
@@ -4659,7 +4658,7 @@ Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据�
         <version>8.0.28</version>
     </dependency>
 
-
+	<!-- 数据源 -->
     <dependency>
         <groupId>com.alibaba</groupId>
         <artifactId>druid</artifactId>
@@ -4766,8 +4765,6 @@ public void testCount(){
 
 
 
-
-
 ### 4.2、声明式事务概念
 
 #### 4.2.1、编程式事务
@@ -4798,7 +4795,7 @@ try {
 
 #### 4.2.2、声明式事务
 
-既然事务控制的代码有规律可循，代码的结构基本是确定的，所以框架就可以将固定模式的代码抽取出 来，进行相关的封装。 
+既然事务控制的代码有规律可循，代码的结构基本是确定的，所以框架就可以将固定模式的代码抽取出来，进行相关的封装。 
 
 封装起来后，我们只需要在配置文件中进行简单的配置即可完成操作。 
 
@@ -5581,7 +5578,7 @@ Spring版本：5.3.18
 
 ### 2.4、创建请求控制器
 
-由于前端控制器对浏览器发送的请求进行了统一的处理，但是具体的请求有不同的处理过程，因此需要 创建处理具体请求的类，即请求控制器 
+由于前端控制器对浏览器发送的请求进行了统一的处理，但是具体的请求有不同的处理过程，因此需要 创建处理具体请求的类，即请求控制器
 
 请求控制器中每一个处理请求的方法成为控制器方法 
 
