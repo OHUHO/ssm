@@ -6036,20 +6036,49 @@ public String testServletAPI(HttpServletRequest request){
 ### 5.2、使用ModelAndView向request域对象共享数据
 
 ```java
+@RequestMapping("/test/mav")
+public ModelAndView testMAV(){
+    ModelAndView modelAndView = new ModelAndView();
+    // 向请求域中共享数据
+    modelAndView.addObject("testRequestScope","hello,ModelAndView");
+    // 设置逻辑视图
+    modelAndView.setViewName("success");
+    return modelAndView;
+}
 ```
+
+> 说明：
+>
+> ModelAndView有Model和View的功能
+>
+> Model主要用于向请求域共享数据
+>
+> View主要用于设置视图，实现页面跳转
+
+> 注：使用View功能设置逻辑视图，控制器方法一定要将ModelAndVIew作为方法的返回值
 
 
 
 ### 5.3、使用Model向request域对象共享数据
 
 ```java
+@RequestMapping("/test/model")
+public String testModel(Model model){
+    model.addAttribute("testRequestScope","hello,Model");
+    return "success";
+}
 ```
 
 
 
-### 5.4、使用map向request域对象共享数据
+### 5.4、使用Map向request域对象共享数据
 
 ```java
+@RequestMapping("/test/map")
+public String testMap(Map<String, Object> map){
+    map.put("testRequestScope","hello, map");
+    return "success";
+}
 ```
 
 
@@ -6057,13 +6086,24 @@ public String testServletAPI(HttpServletRequest request){
 ### 5.5、使用ModelMap向request域对象共享数据
 
 ```java
+@RequestMapping("/test/modelMap")
+public String testModelMap(ModelMap modelMap){
+    modelMap.addAttribute("testRequestScope","hello,ModelMap");
+    return "success";
+}
 ```
 
 
 
 ### 5.6、Model、ModelMap、Map的关系
 
+Model、ModelMap、Map类型的参数其实本质上都是 BindingAwareModelMap 类型的
+
 ```java
+public interface Model{}
+public class ModelMap extends LinkedHashMap<String, Object> {}
+public class ExtendedModelMap extends ModelMap implements Model {}
+public class BindingAwareModelMap extends ExtendedModelMap {}
 ```
 
 
@@ -6071,6 +6111,11 @@ public String testServletAPI(HttpServletRequest request){
 ### 5.7、向session域共享数据
 
 ```java
+@RequestMapping("/test/session")
+public String testSession(HttpSession session){
+    session.setAttribute("testSessionScope","hello,session");
+    return "success";
+}
 ```
 
 
@@ -6078,6 +6123,12 @@ public String testServletAPI(HttpServletRequest request){
 ### 5.8、向application域共享数据
 
 ```java
+@RequestMapping("/test/application")
+public String testApplication(HttpSession session){
+    ServletContext servletContext = session.getServletContext();
+    servletContext.setAttribute("testApplicationScope","hello,application");
+    return "success";
+}
 ```
 
 
@@ -6085,6 +6136,25 @@ public String testServletAPI(HttpServletRequest request){
 
 
 ## 6、SpringMVC的视图
+
+SpringMVC中的视图是View接口，视图的作用渲染数据，将模型Model中的数据展示给用户
+
+SpringMVC视图的种类很多，默认有转发视图和重定向视图 
+
+当工程引入jstl的依赖，转发视图会自动转换为JstlView 
+
+若使用的视图技术为Thymeleaf，在SpringMVC的配置文件中配置了Thymeleaf的视图解析器，由此视 图解析器解析之后所得到的是ThymeleafView
+
+
+
+### 6.1、ThymeleafView
+
+当控制器方法中所设置的视图名称没有任何前缀时，此时的视图名称会被SpringMVC配置文件中所配置 的视图解析器解析，视图名称拼接视图前缀和视图 
+
+后缀所得到的最终路径，会通过转发的方式实现跳转
+
+```java
+```
 
 
 
