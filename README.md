@@ -5968,9 +5968,19 @@ defaultValue：不管required属性值为true或false，当value所指定的请�
 可以在控制器方法的形参位置设置一个实体类类型的形参，此时若浏览器传输的请求参数的参数名和实 体类中的属性名一致，那么请求参数就会为此属性赋值
 
 ```html
+<form th:action="@{/param/pojo}" method="post">
+    用户名：<input type="text" name="username"><br>
+    密码：<input type="password" name="password"><br>
+    <input type="submit" value="登录"><br>
+</form>
 ```
 
 ```java
+@RequestMapping("/param/pojo")
+public String getParamPojo(User user){
+    System.out.println("user = " + user);
+    return "success";
+}
 ```
 
 
@@ -5980,6 +5990,23 @@ defaultValue：不管required属性值为true或false，当value所指定的请�
 解决获取请求参数的乱码问题，可以使用SpringMVC提供的编码过滤器CharacterEncodingFilter，但是 必须在web.xml中进行注册
 
 ```xml
+<!-- 配置SpringMVC的编码过滤器 -->
+<filter>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+        <param-name>forceEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
 ```
 
 > 注：
@@ -5992,9 +6019,72 @@ defaultValue：不管required属性值为true或false，当value所指定的请�
 
 ## 5、域对象共享数据
 
+### 5.1、使用ServletAPI向request域对象共享数据
+
+```java
+@RequestMapping("/testServletAPI")
+public String testServletAPI(HttpServletRequest request){
+	request.setAttribute("testScope", "hello,servletAPI");
+	return "success";
+}
+```
+
+> 不会使用该方式
 
 
 
+### 5.2、使用ModelAndView向request域对象共享数据
+
+```java
+```
+
+
+
+### 5.3、使用Model向request域对象共享数据
+
+```java
+```
+
+
+
+### 5.4、使用map向request域对象共享数据
+
+```java
+```
+
+
+
+### 5.5、使用ModelMap向request域对象共享数据
+
+```java
+```
+
+
+
+### 5.6、Model、ModelMap、Map的关系
+
+```java
+```
+
+
+
+### 5.7、向session域共享数据
+
+```java
+```
+
+
+
+### 5.8、向application域共享数据
+
+```java
+```
+
+
+
+
+
+## 6、SpringMVC的视图
 
 
 
