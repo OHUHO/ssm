@@ -6,6 +6,12 @@
 </head>
 <body>
 <h1>index.html</h1>
-<a th:href="@{/test/hello}">测试@RequestMapping注解标识的位置</a>
+<a th:href="@{/hello}">测试@RequestMapping注解标识的位置</a><br><br>
+<a th:href="@{/abc}">测试@RequestMapping的value属性</a><br><br>
+<form th:action="@{/hello}" method="post">
+    <input type="submit" value="测试@RequestMapping注解的method属性">
+</form><br>
+<a th:href="@{/hello?username=admin}">测试@RequestMapping的params属性</a><br><br>
+<a th:href="@{/hello(username='admin',age=20)}">测试@RequestMapping的params属性</a><br>
 </body>
 </html>

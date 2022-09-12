@@ -5722,8 +5722,19 @@ public class TestRequestMappingController {
 
 @RequestMapping注解的value属性必须设置，至少通过请求地址匹配请求映射
 
-```java
+```html
+<a th:href="@{/hello}">测试@RequestMapping注解标识的位置</a><br>
+<a th:href="@{/abc}">测试@RequestMapping的value属性</a>
+```
 
+```java
+@Controller
+public class TestRequestMappingController {
+    @RequestMapping({"/hello","/abc"})
+    public String hello(){
+        return "success";
+    }
+}
 ```
 
 ### 3.4、@RequestMapping注解的method属性
@@ -5734,10 +5745,26 @@ public class TestRequestMappingController {
 
 若当前请求的请求地址满足请求映射的value属性，但是请求方式不满足method属性，则浏览器报错 405：Request method 'POST' not supported
 
-```xml
+```html
+<a th:href="@{/hello}">测试@RequestMapping注解标识的位置</a><br>
+<a th:href="@{/abc}">测试@RequestMapping的value属性</a><br>
+<form th:action="@{/hello}" method="post">
+    <input type="submit" value="测试@RequestMapping注解的method属性">
+</form>
 ```
 
 ```java
+@Controller
+public class TestRequestMappingController {
+
+    @RequestMapping(
+            value = {"/hello","/abc"},
+            method = {RequestMethod.GET, RequestMethod.POST}
+    )
+    public String hello(){
+        return "success";
+    }
+}
 ```
 
 > 注： 
@@ -5757,3 +5784,94 @@ public class TestRequestMappingController {
 
 ### 3.5、@RequestMapping注解的params属性（了解）
 
+@RequestMapping注解的params属性通过请求的请求参数匹配请求映射 
+
+@RequestMapping注解的params属性是一个字符串类型的数组，可以通过四种表达式设置请求参数 和请求映射的匹配关系 
+
+1. "param"：要求请求映射所匹配的请求必须携带param请求参数
+
+2. "!param"：要求请求映射所匹配的请求必须不能携带param请求参数 
+
+3. "param=value"：要求请求映射所匹配的请求必须携带param请求参数且param=value 
+
+4. "param!=value"：要求请求映射所匹配的请求必须携带param请求参数但是param!=value
+
+```html
+<a th:href="@{/hello?username=admin}">测试@RequestMapping的params属性</a><br><br>
+<a th:href="@{/hello(username='admin',age=20)}">测试@RequestMapping的params属性</a><br>
+```
+
+```java
+@Controller
+public class TestRequestMappingController {
+    @RequestMapping(
+            value = {"/hello","/abc"},
+            method = {RequestMethod.GET, RequestMethod.POST},
+            params = {"username","!password","age=20","gender!=男"}
+    )
+    public String hello(){
+        return "success";
+    }
+}
+```
+
+> 注：
+>
+> 若当前请求满足@RequestMapping注解的value和method属性，但是不满足params属性，此时 页面回报错400：Parameter conditions "username, password!=123456" not met for actual request parameters: username={admin}, password={123456}
+
+
+
+### 3.6、@RequestMapping注解的headers属性（了解）
+
+@RequestMapping注解的headers属性通过请求的请求头信息匹配请求映射 
+
+@RequestMapping注解的headers属性是一个字符串类型的数组，可以通过四种表达式设置请求头信息和请求映射的匹配关系 
+
+1. "header"：要求请求映射所匹配的请求必须携带header请求头信息 
+2. "!header"：要求请求映射所匹配的请求必须不能携带header请求头信息 
+3. "header=value"：要求请求映射所匹配的请求必须携带header请求头信息且header=value 
+4. "header!=value"：要求请求映射所匹配的请求必须携带header请求头信息且header!=value 
+
+若当前请求满足@RequestMapping注解的value和method属性，但是不满足headers属性，此时页面显示404错误，即资源未找到
+
+
+
+### 3.7、SpringMVC支持ant风格的路径
+
+- ？：表示任意的单个字符 
+- *：表示任意的0个或多个字符 
+- **：表示任意层数的任意目录 
+
+注意：在使用时，只能使用/**/xxx的方式
+
+
+
+###  3.8、SpringMVC支持路径中的占位符（Im）
+
+原始方式：/deleteUser?id=1 
+
+rest方式：/user/delete/1
+
+SpringMVC路径中的占位符常用于RESTful风格中，当请求路径中将某些数据通过路径的方式传输到服 务器中，就可以在相应的@RequestMapping注解的value属性中通过占位符{xxx}表示传输的数据，在 通过@PathVariable注解，将占位符所表示的数据赋值给控制器方法的形参
+
+```html
+```
+
+```java
+```
+
+
+
+
+
+## 4、SpringMVC获取请求参数
+
+### 4.1、通过ServletAPI获取
+
+
+
+
+
+
+
+### 
