@@ -12,6 +12,23 @@
     <input type="submit" value="测试@RequestMapping注解的method属性">
 </form><br>
 <a th:href="@{/hello?username=admin}">测试@RequestMapping的params属性</a><br><br>
-<a th:href="@{/hello(username='admin',age=20)}">测试@RequestMapping的params属性</a><br>
+<a th:href="@{/hello(username='admin',age=20)}">测试@RequestMapping的params属性</a><br><br>
+<a th:href="@{/ava/test/ant}">测试@RequestMapping注解支持ant风格的路径</a><br><br>
+<a th:href="@{/test/rest/admin/1}">测试@RequestMapping注解的value属性中的占位符</a><br><br>
+
+<hr>
+
+<form th:action="@{/param/servletAPI}" method="post">
+    用户名：<input type="text" name="username"><br>
+    密码：<input type="password" name="password"><br>
+    <input type="submit" value="登录"><br>
+</form>
+
+<form th:action="@{/param}" method="post">
+    用户名：<input type="text" name="username"><br>
+    密码：<input type="password" name="password"><br>
+    <input type="submit" value="登录"><br>
+</form>
+
 </body>
 </html>
