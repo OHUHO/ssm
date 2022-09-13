@@ -6232,7 +6232,7 @@ REST：Representational State Transfer，表现层资源状态转移。
 
 ##### ①资源
 
-资源是一种看待服务器的方式，即，将服务器看作是由很多离散的资源组成。每个资源是服务器上一个可命名的抽象概念。因为资源是一个抽象的概念，所以它不仅仅能代表服务器文件系统中的一个文件、 数据库中的一张表等等具体的东西，可以将资源设计的要多抽象有多抽象，只要想象力允许而且客户端 应用开发者能够理解。与面向对象设计类似，资源是以名词为核心来组织的，首先关注的是名词。一个资源可以由一个或多个URI来标识。URI既是资源的名称，也是资源在Web上的地址。对某个资源感兴趣的客户端应用，可以通过资源的URI与其进行交互。
+资源是一种看待服务器的方式，即将服务器看作是由很多离散的资源组成。每个资源是服务器上一个可命名的抽象概念。因为资源是一个抽象的概念，所以它不仅仅能代表服务器文件系统中的一个文件、 数据库中的一张表等等具体的东西，可以将资源设计的要多抽象有多抽象，只要想象力允许而且客户端 应用开发者能够理解。与面向对象设计类似，资源是以名词为核心来组织的，首先关注的是名词。一个资源可以由一个或多个URI来标识。URI既是资源的名称，也是资源在Web上的地址。对某个资源感兴趣的客户端应用，可以通过资源的URI与其进行交互。
 
 ##### ② 资源的描述
 
@@ -6248,9 +6248,14 @@ REST：Representational State Transfer，表现层资源状态转移。
 
 具体说，就是 HTTP 协议里面，四个表示操作方式的动词：GET、POST、PUT、DELETE。 
 
-它们分别对应四种基本操作：GET 用来获取资源，POST 用来新建资源，PUT 用来更新资源，DELETE 用来删除资源。 
+它们分别对应四种基本操作：
 
-REST 风格提倡 URL 地址使用统一的风格设计，从前到后各个单词使用斜杠分开，不使用问号键值对方 式携带请求参数，而是将要发送给服务器的数据作为 URL 地址的一部分，以保证整体风格的一致性。
+- GET 用来获取资源
+- POST 用来新建资源
+- PUT 用来更新资源
+- DELETE 用来删除资源。 
+
+REST 风格提倡 URL 地址使用统一的风格设计，从前到后各个单词使用斜杠分开，不使用问号键值对方式携带请求参数，而是将要发送给服务器的数据作为 URL 地址的一部分，以保证整体风格的一致性。
 
 | 操作     | 传统方式         | REST风格                 |
 | -------- | ---------------- | ------------------------ |
@@ -6297,11 +6302,99 @@ SpringMVC 提供了 HiddenHttpMethodFilter 帮助我们将 POST 请求转换为 
 
 
 
+### 7.4、案例
+
+```html
+<a th:href="@{/user}">查询所有用户信息</a><br><br>
+<a th:href="@{/user/1}">查询id=1的用户信息</a><br><br>
+<form th:action="@{/user}" method="post">
+    <input type="submit" value="添加用户信息">
+</form><br>
+<form th:action="@{/user}" method="post">
+    <input type="hidden" name="_method" value="put">
+    <input type="submit" value="修改用户信息">
+</form><br>
+<form th:action="@{/user/1}" method="post">
+    <input type="hidden" name="_method" value="delete">
+    <input type="submit" value="删除用户信息">
+</form>
+```
+
+```java
+@RequestMapping(value = "/user",method = RequestMethod.GET)
+public String getAllUser(){
+    System.out.println("查询所有用户信息——>/user——>get");
+    return "success";
+}
+
+@RequestMapping(value = "/user/{id}",method = RequestMethod.GET)
+public String getUserById(@PathVariable("id") Integer id){
+    System.out.println("根据id查询用户信息——>/user/"+id+"——>get");
+    return "success";
+}
+
+@RequestMapping(value = "/user",method = RequestMethod.POST)
+public String insertUser(){
+    System.out.println("添加用户信息——>/user——>post");
+    return "success";
+}
+
+@RequestMapping(value = "/user",method = RequestMethod.PUT)
+public String updateUser(){
+    System.out.println("修改用户信息——>/user——>put");
+    return "success";
+}
+
+@RequestMapping(value = "/user/{id}",method = RequestMethod.DELETE)
+public String deleteUser(@PathVariable("id") Integer id){
+    System.out.println("修改用户信息——>/user/"+id+"——>delete");
+    return "success";
+}
+```
+
+
+
+
+
 ## 8、RESTful案例
 
 ### 8.1、准备工作
 
+和传统 CRUD 一样，实现对员工信息的增删改查。
 
+- 搭建环境
+
+- 准备实体类
+
+	```java
+	
+	```
+
+- 准备dao模拟数据
+
+	```java
+	
+	```
+
+
+
+### 8.2、功能清单
+
+| 功能               | URL地址     | 请求方式 |
+| ------------------ | ----------- | -------- |
+| 访问首页           | /           | GET      |
+| 查询全部数据       | /employee   | GET      |
+| 删除               | /employee/2 | DELETE   |
+| 跳转到添加数据页面 | /toAdd      | GET      |
+| 执行保存           | /employee   | POST     |
+| 跳转到更新数据页面 | /employee/2 | GET      |
+| 执行更新           | /employee   | PUT      |
+
+
+
+### 8.3、具体功能：访问首页
+
+##### ① 配置view-controller
 
 
 
