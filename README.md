@@ -6280,6 +6280,15 @@ SpringMVC 提供了 HiddenHttpMethodFilter 帮助我们将 POST 请求转换为 
 在web.xml中注册HiddenHttpMethodFilter
 
 ```xml
+<!-- 设置处理请求方式的过滤器 -->
+<filter>
+    <filter-name>HiddenHttpMethodFilter</filter-name>
+    <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>HiddenHttpMethodFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
 ```
 
 > 注：
@@ -6321,31 +6330,36 @@ SpringMVC 提供了 HiddenHttpMethodFilter 帮助我们将 POST 请求转换为 
 ```
 
 ```java
-@RequestMapping(value = "/user",method = RequestMethod.GET)
+// @RequestMapping(value = "/user",method = RequestMethod.GET)
+@GetMapping("/user")
 public String getAllUser(){
     System.out.println("查询所有用户信息——>/user——>get");
     return "success";
 }
 
-@RequestMapping(value = "/user/{id}",method = RequestMethod.GET)
+// @RequestMapping(value = "/user/{id}",method = RequestMethod.GET)
+@GetMapping("/user/{id}")
 public String getUserById(@PathVariable("id") Integer id){
     System.out.println("根据id查询用户信息——>/user/"+id+"——>get");
     return "success";
 }
 
-@RequestMapping(value = "/user",method = RequestMethod.POST)
+// @RequestMapping(value = "/user",method = RequestMethod.POST)
+@PostMapping("/user")
 public String insertUser(){
     System.out.println("添加用户信息——>/user——>post");
     return "success";
 }
 
-@RequestMapping(value = "/user",method = RequestMethod.PUT)
+// @RequestMapping(value = "/user",method = RequestMethod.PUT)
+@PutMapping("/user")
 public String updateUser(){
     System.out.println("修改用户信息——>/user——>put");
     return "success";
 }
 
-@RequestMapping(value = "/user/{id}",method = RequestMethod.DELETE)
+// @RequestMapping(value = "/user/{id}",method = RequestMethod.DELETE)
+@DeleteMapping("/user/{id}")
 public String deleteUser(@PathVariable("id") Integer id){
     System.out.println("修改用户信息——>/user/"+id+"——>delete");
     return "success";
@@ -6367,13 +6381,117 @@ public String deleteUser(@PathVariable("id") Integer id){
 - 准备实体类
 
 	```java
+	package com.jingchao.pojo;
 	
+	public class Employee {
+	
+	    private Integer id;
+	
+	    private String lastName;
+	
+	    private String email;
+	
+	    //1 male, 0 female
+	    private Integer gender;
+	
+	    public Employee() {
+	    }
+	
+	    public Employee(Integer id, String lastName, String email, Integer gender) {
+	        this.id = id;
+	        this.lastName = lastName;
+	        this.email = email;
+	        this.gender = gender;
+	    }
+	
+	    public Integer getId() {
+	        return id;
+	    }
+	
+	    public void setId(Integer id) {
+	        this.id = id;
+	    }
+	
+	    public String getLastName() {
+	        return lastName;
+	    }
+	
+	    public void setLastName(String lastName) {
+	        this.lastName = lastName;
+	    }
+	
+	    public String getEmail() {
+	        return email;
+	    }
+	
+	    public void setEmail(String email) {
+	        this.email = email;
+	    }
+	
+	    public Integer getGender() {
+	        return gender;
+	    }
+	
+	    public void setGender(Integer gender) {
+	        this.gender = gender;
+	    }
+	
+	    @Override
+	    public String toString() {
+	        return "Employee{" +
+	                "id=" + id +
+	                ", lastName='" + lastName + '\'' +
+	                ", email='" + email + '\'' +
+	                ", gender=" + gender +
+	                '}';
+	    }
+	}
 	```
 
 - 准备dao模拟数据
 
 	```java
+	package com.jingchao.dao;
 	
+	import com.jingchao.pojo.Employee;
+	
+	import java.util.Collection;
+	import java.util.HashMap;
+	import java.util.Map;
+	
+	@Repository
+	public class EmployeeDao {
+	
+	    private static Map<Integer, Employee> employees = null;
+	    static{
+	        employees = new HashMap<Integer, Employee>();
+	        employees.put(1001, new Employee(1001, "E-AA", "aa@163.com", 1));
+	        employees.put(1002, new Employee(1002, "E-BB", "bb@163.com", 1));
+	        employees.put(1003, new Employee(1003, "E-CC", "cc@163.com", 0));
+	        employees.put(1004, new Employee(1004, "E-DD", "dd@163.com", 0));
+	        employees.put(1005, new Employee(1005, "E-EE", "ee@163.com", 1));
+	    }
+	    private static Integer initId = 1006;
+	
+	    public void save(Employee employee) {
+	        if (employee.getId() == null) {
+	            employee.setId(initId++);
+	        }
+	        employees.put(employee.getId(), employee);
+	    }
+	
+	    public Collection<Employee> getAll(){
+	        return employees.values();
+	    }
+	
+	    public Employee get(Integer id){
+	        return employees.get(id);
+	    }
+	
+	    public void delete(Integer id){
+	        employees.remove(id);
+	    }
+	}
 	```
 
 
@@ -6395,6 +6513,129 @@ public String deleteUser(@PathVariable("id") Integer id){
 ### 8.3、具体功能：访问首页
 
 ##### ① 配置view-controller
+
+```xml
+<!-- 配置视图控制器 -->
+<mvc:view-controller path="/" view-name="index"/>
+```
+
+##### ② 创建页面
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" >
+	<title>Title</title>
+</head>
+<body>
+<h1>index</h1>
+<a th:href="@{/employee}">访问员工信息</a>
+</body>
+</html>
+```
+
+
+
+### 8.4、具体功能：查询所有员工信息
+
+##### ① 控制器方法
+
+```java
+```
+
+##### ② 创建employee_list.html
+
+```html
+```
+
+
+
+### 8.5、具体功能：删除
+
+##### ① 创建处理delete请求方式的表单
+
+```html
+```
+
+##### ② 删除超链接绑定点击事件
+
+引入vue.js
+
+```js
+```
+
+删除超链接
+
+```html
+```
+
+通过vue处理点击事件
+
+```js
+```
+
+##### ③ 控制器方法
+
+```java
+```
+
+
+
+### 8.6、具体功能：跳转到添加数据页面
+
+##### ① 配置view-controller
+
+```xml
+```
+
+##### ② 创建employee_add.html
+
+```html
+```
+
+
+
+### 8.7、具体功能：执行保存
+
+##### ① 控制器方法
+
+```java
+```
+
+
+
+### 8.8、具体功能：跳转到更新数据页面
+
+##### ① 修改超链接
+
+```html
+```
+
+##### ② 控制器方法
+
+```java
+```
+
+##### ③ 创建employee_update.html
+
+```html
+```
+
+
+
+### 8.9、具体功能：执行更新
+
+##### ① 控制器方法
+
+```java
+```
+
+
+
+
+
+## 9、SpringMVC处理ajax请求
 
 
 
