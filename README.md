@@ -6542,11 +6542,48 @@ public String deleteUser(@PathVariable("id") Integer id){
 ##### ① 控制器方法
 
 ```java
+@GetMapping("/employee")
+public String getAllEmployee(Model model){
+    Collection<Employee> allEmployee = employeeDao.getAll();
+    model.addAttribute("allEmployee",allEmployee);
+    return "employee_list";
+}
 ```
 
 ##### ② 创建employee_list.html
 
 ```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee List</title>
+</head>
+<body>
+<table>
+  <tr>
+    <th colspan="5">employee list</th>
+  </tr>
+  <tr>
+    <th>id</th>
+    <th>lastName</th>
+    <th>email</th>
+    <th>gender</th>
+    <th>options</th>
+  </tr>
+  <tr th:each="employee : ${allEmployee}">
+    <td th:text="${employee.id}"></td>
+    <td th:text="${employee.lastName}"></td>
+    <td th:text="${employee.email}"></td>
+    <td th:text="${employee.gender}"></td>
+    <td>
+      <a href="">delete</a>
+      <a href="">update</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
 ```
 
 
