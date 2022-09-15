@@ -6372,6 +6372,8 @@ public String deleteUser(@PathVariable("id") Integer id){
 
 ## 8、RESTful案例
 
+模块名称：spring_mvc_rest
+
 ### 8.1、准备工作
 
 和传统 CRUD 一样，实现对员工信息的增删改查。
@@ -6558,30 +6560,35 @@ public String getAllEmployee(Model model){
 <head>
     <meta charset="UTF-8">
     <title>Employee List</title>
+    <link rel="stylesheet" th:href="@{/static/css/index_work.css}">
 </head>
 <body>
-<table>
-  <tr>
-    <th colspan="5">employee list</th>
-  </tr>
-  <tr>
-    <th>id</th>
-    <th>lastName</th>
-    <th>email</th>
-    <th>gender</th>
-    <th>options</th>
-  </tr>
-  <tr th:each="employee : ${allEmployee}">
-    <td th:text="${employee.id}"></td>
-    <td th:text="${employee.lastName}"></td>
-    <td th:text="${employee.email}"></td>
-    <td th:text="${employee.gender}"></td>
-    <td>
-      <a href="">delete</a>
-      <a href="">update</a>
-    </td>
-  </tr>
-</table>
+
+<div id="app">
+    <table>
+        <tr>
+            <th colspan="5">employee list</th>
+        </tr>
+        <tr>
+            <th>id</th>
+            <th>lastName</th>
+            <th>email</th>
+            <th>gender</th>
+            <th>options（<a th:href="@{/to/add}">add</a>）</th>
+        </tr>
+        <tr th:each="employee : ${allEmployee}">
+            <td th:text="${employee.id}"></td>
+            <td th:text="${employee.lastName}"></td>
+            <td th:text="${employee.email}"></td>
+            <td th:text="${employee.gender}"></td>
+            <td>
+                <a href="">delete</a>
+                <a href="">update</a>
+            </td>
+        </tr>
+    </table>
+    
+</div>
 </body>
 </html>
 ```
@@ -6593,6 +6600,9 @@ public String getAllEmployee(Model model){
 ##### ① 创建处理delete请求方式的表单
 
 ```html
+<form method="post">
+    <input type="hidden" name="_method" value="delete">
+</form>
 ```
 
 ##### ② 删除超链接绑定点击事件
@@ -6600,21 +6610,46 @@ public String getAllEmployee(Model model){
 引入vue.js
 
 ```js
+<script type="text/javascript" th:src="@{/static/js/vue.js}"></script>
 ```
 
-删除超链接
+修改删除超链接
 
 ```html
+<a @click="deleteEmployee" th:href="@{'/employee/'+ ${employee.id}}">delete</a>
 ```
 
 通过vue处理点击事件
 
 ```js
+<script type="text/javascript">
+    var vue = new Vue({
+        el:"#app",
+        methods:{
+            deleteEmployee(){
+                // 获取form表单
+                let form = document.getElementsByTagName("form")[0];
+                // 将超链接的href属性值赋值给form表单的action属性
+                // event.target表示当前触发事件的标签
+                form.action = event.target.href;
+                // 将表单提交
+                form.submit();
+                // 阻止超链接的默认行为
+                event.preventDefault();
+            }
+        }
+    })
+</script>
 ```
 
 ##### ③ 控制器方法
 
 ```java
+@DeleteMapping("employee/{id}")
+public String deleteEmployee(@PathVariable("id") Integer id){
+    employeeDao.delete(id);
+    return "redirect:/employee";
+}
 ```
 
 
@@ -6624,11 +6659,54 @@ public String getAllEmployee(Model model){
 ##### ① 配置view-controller
 
 ```xml
+<mvc:view-controller path="/to/add" view-name="employee_add"/>
 ```
 
 ##### ② 创建employee_add.html
 
 ```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Employee</title>
+    <link rel="stylesheet" th:href="@{/static/css/index_work.css}">
+</head>
+<body>
+<form th:action="@{/employee}" method="post">
+  <table>
+    <tr>
+      <th th:colspan="2">Add Employee</th>
+    </tr>
+    <tr>
+      <td>lastName</td>
+      <td>
+        <input type="text" name="lastName">
+      </td>
+    </tr>
+    <tr>
+      <td>email</td>
+      <td>
+        <input type="text" name="email">
+      </td>
+    </tr>
+    <tr>
+      <td>gender</td>
+      <td>
+        <input type="radio" name="gender" value="1">male
+        <input type="radio" name="gender" value="0">female
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" name="add">
+      </td>
+    </tr>
+
+  </table>
+</form>
+</body>
+</html>
 ```
 
 
@@ -6638,6 +6716,11 @@ public String getAllEmployee(Model model){
 ##### ① 控制器方法
 
 ```java
+@PostMapping("/employee")
+public String addEmployee(Employee employee){
+    employeeDao.save(employee);
+    return "redirect:/employee";
+}
 ```
 
 
@@ -6647,16 +6730,66 @@ public String getAllEmployee(Model model){
 ##### ① 修改超链接
 
 ```html
+<a th:href="@{'/employee/'+ ${employee.id}}">update</a>
 ```
 
 ##### ② 控制器方法
 
 ```java
+@GetMapping("/employee/{id}")
+public String toUpdate(@PathVariable("id") Integer id, Model model){
+    Employee employee = employeeDao.get(id);
+    model.addAttribute(employee);
+    return "employee_update";
+}
 ```
 
 ##### ③ 创建employee_update.html
 
 ```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Employee</title>
+    <link rel="stylesheet" th:href="@{/static/css/index_work.css}">
+</head>
+<body>
+<form th:action="@{/employee}" method="post">
+  <input type="hidden" name="_method" value="put">
+  <input type="hidden" name="id" th:value="${employee.id}">
+  <table>
+    <tr>
+      <th th:colspan="2">Update Employee</th>
+    </tr>
+    <tr>
+      <td>lastName</td>
+      <td>
+        <input type="text" name="lastName" th:value="${employee.lastName}">
+      </td>
+    </tr>
+    <tr>
+      <td>email</td>
+      <td>
+        <input type="text" name="email" th:value="${employee.email}">
+      </td>
+    </tr>
+    <tr>
+      <td>gender</td>
+      <td>
+        <input type="radio" name="gender" value="1" th:field="${employee.gender}">male
+        <input type="radio" name="gender" value="0" th:field="${employee.gender}">female
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="update">
+      </td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>
 ```
 
 
@@ -6666,15 +6799,96 @@ public String getAllEmployee(Model model){
 ##### ① 控制器方法
 
 ```java
+@PutMapping("/employee")
+public String updateEmployee(Employee employee){
+    employeeDao.save(employee);
+    return "redirect:/employee";
+}
 ```
-
-
 
 
 
 ## 9、SpringMVC处理ajax请求
 
+### 9.1、@RequestBody
 
+@RequestBody可以获取请求体信息，使用@RequestBody注解标识控制器方法的形参，当前请求的请求体就会为当前注解所标识的形参赋值
+
+```html
+```
+
+```java
+```
+
+
+
+### 9.2、@REquestBody获取json格式的请求参数
+
+> 在使用了axios发送ajax请求之后，浏览器发送到服务器的请求参数有两种格式：
+>
+> 1. name=value&name=value...，此时的请求参数可以通过request.getParameter()获取，对应 SpringMVC中，可以直接通过控制器方法的形参获取此类请求参数
+> 2. {key:value,key:value,...}，此时无法通过request.getParameter()获取，之前我们使用操作 json的相关jar包gson或jackson处理此类请求参数，可以将其转换为指定的实体类对象或map集 合。在SpringMVC中，直接使用@RequestBody注解标识控制器方法的形参即可将此类请求参数 转换为java对象
+
+使用@ReqeustBody获取json格式的请求参数条件
+
+1. 导入jackson的依赖
+
+	```xml
+	
+	```
+
+2. SpringMVC的配置文件中设置开启mvc的注解驱动
+
+	```xml
+	
+	```
+
+3. 在控制器方法的形参位置，设置json格式的请求参数要转换成的java类型（实体类或map）的参数，并使用@RequestBody注解标识
+
+	```html
+	
+	```
+
+	```java
+	```
+
+
+
+### 9.4、@ResponseBody响应浏览器json数据
+
+服务器处理ajax请求之后，大多数情况都需要向浏览器响应一个java对象，此时必须将java对象转换为 json字符串才可以响应到浏览器，之前我们使用操作json数据的jar包gson或jackson将java对象转换为 json字符串。在SpringMVC中，我们可以直接使用@ResponseBody注解实现此功能 
+
+@ResponseBody响应浏览器json数据的条件：
+
+1. 导入jackson的依赖
+
+	```xml
+	
+	```
+
+2. SpringMVC的配置文件中设置开启mvc的注解驱动
+
+	```html
+	
+	```
+
+3. 使用@ResponseBody注解标识控制器方法，在方法中，将需要转换为json字符串并响应到浏览器 的java对象作为控制器方法的返回值，此时SpringMVC就可以将此对象直接转换为json字符串并响应到浏览器
+
+	```html
+	```
+
+	```java
+	```
+
+
+
+### 9.5、@RestCOntroller注解
+
+@RestController注解是springMVC提供的一个复合注解，标识在控制器的类上，就相当于为类添加了@Controller注解，并且为其中的每个方法添加了@ResponseBody注解
+
+
+
+## 10、文件的上传和下载
 
 
 
