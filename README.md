@@ -7071,8 +7071,10 @@ public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws IOE
 ② 在SpringMVC的配置文件中添加配置
 
 ```xml
-<!-- 通过文件解析器将文件转换为MultipartFile对象 -->
-	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+<!-- 配置文件上传解析器
+     通过文件解析器将文件转换为MultipartFile对象
+  -->
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 ```
 
 ③ 具体实现
@@ -7096,6 +7098,7 @@ public String testUp(MultipartFile photo, HttpSession session) throws IOExceptio
     //获取服务器中photo目录的路径
     ServletContext servletContext = session.getServletContext();
     String photoPath = servletContext.getRealPath("photo");
+    // 创建photoPath对应的File对象
     File file = new File(photoPath);
     if(!file.exists()){
         file.mkdir();

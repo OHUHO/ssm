@@ -59,6 +59,7 @@ public class FileUpAndDownController {
         //获取服务器中photo目录的路径
         ServletContext servletContext = session.getServletContext();
         String photoPath = servletContext.getRealPath("photo");
+        // 创建photoPath对应的File对象
         File file = new File(photoPath);
         if(!file.exists()){
             file.mkdir();
