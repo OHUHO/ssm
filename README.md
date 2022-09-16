@@ -6814,15 +6814,52 @@ public String updateEmployee(Employee employee){
 
 @RequestBody可以获取请求体信息，使用@RequestBody注解标识控制器方法的形参，当前请求的请求体就会为当前注解所标识的形参赋值
 
+##### ① 示例一
+
 ```html
+<input type="button" value="测试SpringMVC处理ajax" @click="testAjax()"><br><br>
+<script type="text/javascript">
+    var vue = new Vue({
+        el: "#app",
+        methods:{
+            testAjax(){
+                axios.post(
+                    "/SpringMVC/test/ajax?id=1001",
+                    {username:"admin",password:"123456"},
+                ).then(resp =>{
+                    console.log(resp.data)
+                });
+            },
+        }
+    });
+</script>
 ```
 
 ```java
+@PostMapping("/test/ajax")
+public void testAjax(
+    Integer id,
+    @RequestBody String  requestBody,
+    HttpServletResponse response) throws IOException {
+    System.out.println("id = " + id);
+    System.out.println("requestBody = " + requestBody);
+    response.getWriter().write("hello, axios");
+}
+```
+
+##### ② 示例二
+
+```html
+
+```
+
+```java
+
 ```
 
 
 
-### 9.2、@REquestBody获取json格式的请求参数
+### 9.2、@RequestBody获取json格式的请求参数
 
 > 在使用了axios发送ajax请求之后，浏览器发送到服务器的请求参数有两种格式：
 >
@@ -6833,24 +6870,80 @@ public String updateEmployee(Employee employee){
 
 1. 导入jackson的依赖
 
-	```xml
-	
-	```
+```xml
+<!-- jackson依赖 -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.2.2</version>
+</dependency>
+```
 
 2. SpringMVC的配置文件中设置开启mvc的注解驱动
 
-	```xml
-	
-	```
+```xml
+<!-- 开启mvc的注解驱动 -->
+<mvc:annotation-driven/>
+```
 
 3. 在控制器方法的形参位置，设置json格式的请求参数要转换成的java类型（实体类或map）的参数，并使用@RequestBody注解标识
 
-	```html
-	
-	```
+```html
+<input type="button" value="使用@RequestBody注解处理json格式的参数" @click="testRequestBody()"><br><br>
+<script type="text/javascript">
+    var vue = new Vue({
+        el: "#app",
+        methods:{
+            testRequestBody(){
+                axios.post(
+                    "/SpringMVC/test/RequestBody/json",
+                    {username:'root',password:'123456',age:18,gender:'男'}
+                ).then(resp => {
+                    console.log(resp.data)
+                })
+            },
+        }
+    });
+</script>
+```
 
-	```java
-	```
+```java
+@PostMapping("/test/RequestBody/json")
+/* public void testRequestBody(@RequestBody User user, HttpServletResponse response) throws IOException {
+        System.out.println(user);
+        response.getWriter().write("hello,RequestBody");
+    } */
+
+public void testRequestBody(@RequestBody Map<String,Object> map, HttpServletResponse response) throws IOException {
+    System.out.println(map);
+    response.getWriter().write("hello,RequestBody");
+}
+```
+
+
+
+### 9.3、@ResponseBody
+
+@ResponseBody用于标识一个控制器方法，可以将该方法的返回值直接作为响应报文的响应体响应到浏览器
+
+```html
+<a th:href="@{/test/ResponseBody}">测试@ResponseBody注解响应浏览器数据</a><br><br>
+```
+
+```java
+@RequestMapping("/test/ResponseBody")
+public String testResponseBody(){
+    // 跳转到逻辑视图success对应的页面
+    return "success";
+}
+
+@RequestMapping("/test/ResponseBody")
+@ResponseBody
+public String testResponseBody(){
+    // 响应浏览器数据success
+    return "success";
+}
+```
 
 
 
@@ -6862,23 +6955,67 @@ public String updateEmployee(Employee employee){
 
 1. 导入jackson的依赖
 
-	```xml
-	
-	```
+```xml
+<!-- jackson依赖 -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.2.2</version>
+</dependency>
+```
 
 2. SpringMVC的配置文件中设置开启mvc的注解驱动
 
-	```html
-	
-	```
+```xml
+<!-- 开启mvc的注解驱动 -->
+<mvc:annotation-driven/>
+```
 
 3. 使用@ResponseBody注解标识控制器方法，在方法中，将需要转换为json字符串并响应到浏览器 的java对象作为控制器方法的返回值，此时SpringMVC就可以将此对象直接转换为json字符串并响应到浏览器
 
-	```html
-	```
+```html
+<input type="button" value="使用@ResponseBody响应json格式的数据" @click="testResponseBody()"><br><br>
+<script type="text/javascript">
+    var vue = new Vue({
+        el: "#app",
+        methods:{
+            testResponseBody(){
+                axios.post("/SpringMVC/test/ResponseBody/json").then(resp => {
+                    console.log(resp.data)
+                })
+            }
+        }
+    });
+</script>
+```
 
-	```java
-	```
+```java
+@PostMapping("/test/ResponseBody/json")
+@ResponseBody
+/* public User testResponseBodyJson(){
+        User user = new User(1001, "admin", "123456", 18, "男");
+        return user;
+    } */
+
+/* public Map<String,Object> testResponseBodyJson(){
+        User user1 = new User(10011, "admin", "123456", 18, "男");
+        User user2 = new User(10022, "admin", "123456", 18, "男");
+        User user3 = new User(10033, "admin", "123456", 18, "男");
+        Map<String,Object> map = new HashMap<>();
+        map.put("10011",user1);
+        map.put("10022",user2);
+        map.put("10033",user3);
+        return map;
+    } */
+
+public List<User> testResponseBodyJson(){
+    User user1 = new User(10011, "admin", "123456", 18, "男");
+    User user2 = new User(10022, "admin", "123456", 18, "男");
+    User user3 = new User(10033, "admin", "123456", 18, "男");
+    List<User> userList = Arrays.asList(user1, user2, user3);
+    return userList;
+}
+```
 
 
 
