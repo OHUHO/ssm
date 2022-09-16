@@ -7019,7 +7019,7 @@ ResponseEntity用于控制器方法的返回值类型，该控制器方法的返
 使用ResponseEntity实现下载文件的功能
 
 ```html
-
+<a th:href="@{/test/down}">下载图片</a><br><br>
 ```
 
 ```java
@@ -7060,9 +7060,118 @@ public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws IOE
 
 ① 添加依赖
 
-
+```xml
+<dependency>
+    <groupId>commons-fileupload</groupId>
+    <artifactId>commons-fileupload</artifactId>
+    <version>1.4</version>
+</dependency>
+```
 
 ② 在SpringMVC的配置文件中添加配置
+
+```xml
+<!-- 通过文件解析器将文件转换为MultipartFile对象 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+```
+
+③ 具体实现
+
+```html
+<form th:action="@{/test/up}" method="post" enctype="multipart/form-data">
+    <input type="file" name="photo"><br>
+    <input type="submit" value="上传">
+</form>
+```
+
+```java
+@RequestMapping("/test/up")
+public String testUp(MultipartFile photo, HttpSession session) throws IOException {
+    //获取上传的文件的文件名
+    String fileName = photo.getOriginalFilename();
+    //处理文件重名问题
+    assert fileName != null;
+    String hzName = fileName.substring(fileName.lastIndexOf("."));
+    fileName = UUID.randomUUID().toString() + hzName;
+    //获取服务器中photo目录的路径
+    ServletContext servletContext = session.getServletContext();
+    String photoPath = servletContext.getRealPath("photo");
+    File file = new File(photoPath);
+    if(!file.exists()){
+        file.mkdir();
+    }
+    String finalPath = photoPath + File.separator + fileName;
+    //实现上传功能
+    photo.transferTo(new File(finalPath));
+    return "success";
+}
+```
+
+
+
+## 11、拦截器
+
+### 11.1、拦截器的配置
+
+SpringMVC中的拦截器用于拦截控制器方法的执行 
+
+SpringMVC中的拦截器需要实现HandlerInterceptor 
+
+SpringMVC的拦截器必须在SpringMVC的配置文件中进行配置：
+
+```xml
+```
+
+
+
+### 11.2、拦截器的三个抽象方法
+
+SpringMVC中的拦截器有三个抽象方法： 
+
+1. preHandle：控制器方法执行之前执行preHandle()，其boolean类型的返回值表示是否拦截或放行，返 回true为放行，即调用控制器方法；返回false表示拦截，即不调用控制器方法 
+2. postHandle：控制器方法执行之后执行postHandle() 
+3. afterCompletion：处理完视图和模型数据，渲染视图完毕之后执行afterCompletion()
+
+
+
+### 11.3、多个拦截器的执行顺序
+
+1. 若每个拦截器的preHandle()都返回true 
+
+	此时多个拦截器的执行顺序和拦截器在SpringMVC的配置文件的配置顺序有关： preHandle()会按照配置的顺序执行，而postHandle()和afterCompletion()会按照配置的反序执
+
+2. 若某个拦截器的preHandle()返回了false 
+
+3. preHandle()返回false和它之前的拦截器的preHandle()都会执行，postHandle()都不执行，返回false 的拦截器之前的拦截器的afterCompletion()会执行
+
+
+
+## 12、异常处理器
+
+### 12.1、基于配置的异常处理
+
+SpringMVC提供了一个处理控制器方法执行过程中所出现的异常的接口：HandlerExceptionResolver 
+
+HandlerExceptionResolver接口的实现类有：
+
+- DefaultHandlerExceptionResolver
+- SimpleMappingExceptionResolver 
+
+SpringMVC提供了自定义的异常处理器SimpleMappingExceptionResolver，使用方式：
+
+```xml
+```
+
+
+
+### 12.2、基于注解的异常处理
+
+```java
+```
+
+
+
+## 13、注解配置SpringMVC
 
 
 

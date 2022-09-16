@@ -28,6 +28,9 @@
 		</property>
 	</bean>
 
+	<!-- 通过文件解析器将文件转换为MultipartFile对象 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+
 	<!-- 开启mvc的注解驱动
 	    下面的内容都以我为前提
 	 -->
