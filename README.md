@@ -6814,8 +6814,6 @@ public String updateEmployee(Employee employee){
 
 @RequestBody可以获取请求体信息，使用@RequestBody注解标识控制器方法的形参，当前请求的请求体就会为当前注解所标识的形参赋值
 
-##### ① 示例一
-
 ```html
 <input type="button" value="测试SpringMVC处理ajax" @click="testAjax()"><br><br>
 <script type="text/javascript">
@@ -6837,24 +6835,11 @@ public String updateEmployee(Employee employee){
 
 ```java
 @PostMapping("/test/ajax")
-public void testAjax(
-    Integer id,
-    @RequestBody String  requestBody,
-    HttpServletResponse response) throws IOException {
+public void testAjax(Integer id, @RequestBody String  requestBody, HttpServletResponse response) throws IOException {
     System.out.println("id = " + id);
     System.out.println("requestBody = " + requestBody);
     response.getWriter().write("hello, axios");
 }
-```
-
-##### ② 示例二
-
-```html
-
-```
-
-```java
-
 ```
 
 
@@ -7019,13 +7004,67 @@ public List<User> testResponseBodyJson(){
 
 
 
-### 9.5、@RestCOntroller注解
+### 9.5、@RestController注解
 
 @RestController注解是springMVC提供的一个复合注解，标识在控制器的类上，就相当于为类添加了@Controller注解，并且为其中的每个方法添加了@ResponseBody注解
 
 
 
 ## 10、文件的上传和下载
+
+### 10.1、文件下载
+
+ResponseEntity用于控制器方法的返回值类型，该控制器方法的返回值就是响应到浏览器的响应报文
+
+使用ResponseEntity实现下载文件的功能
+
+```html
+
+```
+
+```java
+@RequestMapping("/test/down")
+public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws IOException {
+    //获取ServletContext对象
+    ServletContext servletContext = session.getServletContext();
+    //获取服务器中文件的真实路径
+    String realPath = servletContext.getRealPath("/images/grill.jpeg");
+    //创建输入流
+    // InputStream is = new FileInputStream(realPath);
+    InputStream is = Files.newInputStream(Paths.get(realPath));
+    //创建字节数组
+    byte[] bytes = new byte[is.available()];
+    //将流读到字节数组中
+    is.read(bytes);
+    //创建HttpHeaders对象设置响应头信息
+    MultiValueMap<String, String> headers = new HttpHeaders();
+    //设置要下载方式以及下载文件的名字
+    headers.add("Content-Disposition", "attachment;filename=grill.jpeg");
+    //设置响应状态码
+    HttpStatus statusCode = HttpStatus.OK;
+    //创建ResponseEntity对象
+    ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(bytes, headers, statusCode);
+    //关闭输入流
+    is.close();
+    return responseEntity;
+}
+```
+
+
+
+### 10.2、文件上传
+
+文件上传要求form表单的请求方式必须为post，并且添加属性enctype="multipart/form-data" SpringMVC中将上传的文件封装到MultipartFile对象中，通过此对象可以获取文件相关信息
+
+上传步骤：
+
+① 添加依赖
+
+
+
+② 在SpringMVC的配置文件中添加配置
+
+
 
 
 
