@@ -14,6 +14,7 @@
         <module name="spring_mvc_helloworld" />
         <module name="spring_mvc_rest" />
         <module name="spring_transaction" />
+        <module name="spring_mvc_extension" />
         <module name="mybatis_parameter" />
         <module name="mybatis_mbg" />
         <module name="spring_proxy" />

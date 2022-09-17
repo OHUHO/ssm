@@ -7123,6 +7123,22 @@ SpringMVC中的拦截器需要实现HandlerInterceptor
 SpringMVC的拦截器必须在SpringMVC的配置文件中进行配置：
 
 ```xml
+<!-- 拦截器配置 -->
+<!-- <bean id="firstInterceptor" class="com.jingchao.interceptor.FirstInterceptor"/> -->
+<mvc:interceptors>
+    <!-- bean和ref标签配置的拦截器默认对DispatchServlet处理的所有请求进行拦截 -->
+    <!-- <bean class="com.jingchao.interceptor.FirstInterceptor"/> -->
+    <ref bean="firstInterceptor"/>
+    <ref bean="secondInterceptor"/>
+    <!-- <mvc:interceptor>
+   &lt;!&ndash; 配置需要拦截的请路径，/** 表示所有请求 &ndash;&gt;
+   <mvc:mapping path="/**"/>
+   &lt;!&ndash; 配置需要拦截的请求的请求路径 &ndash;&gt;
+   <mvc:exclude-mapping path="/abc"/>
+   &lt;!&ndash; 配置拦截器 &ndash;&gt;
+   <ref bean="firstInterceptor"/>
+  </mvc:interceptor> -->
+</mvc:interceptors>
 ```
 
 
@@ -7175,6 +7191,22 @@ SpringMVC提供了自定义的异常处理器SimpleMappingExceptionResolver，�
 
 
 ## 13、注解配置SpringMVC
+
+使用配置类和注解代替web.xml和SpringMVC配置文件的功能
+
+### 13.1、创建初始化类，代替web.xml
+
+在Servlet3.0环境中，容器会在类路径中查找实现javax.servlet.ServletContainerInitializer接口的类， 如果找到的话就用它来配置Servlet容器。 Spring提供了这个接口的实现，名为 SpringServletContainerInitializer，这个类反过来又会查找实现WebApplicationInitializer的类并将配置的任务交给它们来完成。Spring3.2引入了一个便利的WebApplicationInitializer基础实现，名为 AbstractAnnotationConfigDispatcherServletInitializer，当我们的类扩展了 AbstractAnnotationConfigDispatcherServletInitializer并将其部署到Servlet3.0容器的时候，容器会自动发现它，并用它来配置Servlet上下文。
+
+```java
+```
+
+
+
+### 13.2、创建SpringConfig配置类，代替spring的配置文件
+
+```java
+```
 
 
 
