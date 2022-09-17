@@ -12,6 +12,7 @@
         <module name="mybatis_helloworld" />
         <module name="spring_mvc_ajax" />
         <module name="spring_mvc_helloworld" />
+        <module name="spring_mvc_annotation" />
         <module name="spring_mvc_rest" />
         <module name="spring_transaction" />
         <module name="spring_mvc_extension" />

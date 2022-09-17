@@ -4,6 +4,7 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/mybatis_helloworld" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_ajax" />
+    <file type="web" url="file://$PROJECT_DIR$/spring_mvc_annotation" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_demo" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_extension" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_helloworld" />
@@ -30,6 +31,7 @@
         <option value="$PROJECT_DIR$/spring_mvc_rest/pom.xml" />
         <option value="$PROJECT_DIR$/spring_mvc_ajax/pom.xml" />
         <option value="$PROJECT_DIR$/spring_mvc_extension/pom.xml" />
+        <option value="$PROJECT_DIR$/spring_mvc_annotation/pom.xml" />
       </list>
     </option>
   </component>
