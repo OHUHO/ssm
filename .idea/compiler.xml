@@ -12,6 +12,7 @@
         <module name="mybatis_helloworld" />
         <module name="spring_listener" />
         <module name="spring_mvc_ajax" />
+        <module name="ssm" />
         <module name="spring_mvc_helloworld" />
         <module name="spring_mvc_annotation" />
         <module name="spring_mvc_rest" />
