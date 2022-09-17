@@ -7965,11 +7965,22 @@ Spring提供了监听器ContextLoaderListener，实现ServletContextListener接�
 ##### ③ 创建表
 
 ```mysql
+CREATE TABLE `t_emp` (
+    `emp_id` int(11) NOT NULL AUTO_INCREMENT,
+    `emp_name` varchar(20) DEFAULT NULL,
+    `age` int(11) DEFAULT NULL,
+    `sex` char(1) DEFAULT NULL,
+    `email` varchar(50) DEFAULT NULL,
+    PRIMARY KEY (`emp_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 ```
 
 
 
 ### 2.2、配置web.xml
+
+```xml
+```
 
 
 
@@ -7993,12 +8004,51 @@ Spring提供了监听器ContextLoaderListener，实现ServletContextListener接�
 
 
 
+##### ④ 创建日志文件log4j.cml
+
+
+
+### 2.5、创建Spring的配置文件
+
+```xml
+```
+
+
+
+### 2.6、测试功能
+
+##### ① 创建组件
+
+实体类Employee
+
+```java
+```
+
+创建控制层组件EmployeeController
+
+```java
+```
+
+创建接口EmployeeService
+
+```java
+```
+
+创建实现类EmployeeServiceImpl
+
+```java
+```
+
+##### ② 创建页面
+
+```html
+```
+
+##### ③ 访问测试分页功能
+
+http://localhost:8084/employee/page/1
 
 
 
 
 
-
-
-
-###
