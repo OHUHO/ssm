@@ -51,7 +51,16 @@
 		</mvc:interceptor> -->
 	</mvc:interceptors>
 
-
+	<!-- 配置异常处理 -->
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<!-- key设置处理的异常，value为出现异常时跳转的逻辑视图 -->
+				<prop key="java.lang.ArithmeticException">error</prop>
+			</props>
+		</property>
+		<property name="exceptionAttribute" value="ex"/>
+	</bean>
 
 
 	<!-- 开启mvc的注解驱动

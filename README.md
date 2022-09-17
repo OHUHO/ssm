@@ -7179,6 +7179,30 @@ HandlerExceptionResolver接口的实现类有：
 SpringMVC提供了自定义的异常处理器SimpleMappingExceptionResolver，使用方式：
 
 ```xml
+<!-- 配置异常处理 -->
+<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+    <property name="exceptionMappings">
+        <props>
+            <!-- key设置处理的异常，value为出现异常时跳转的逻辑视图 -->
+            <prop key="java.lang.ArithmeticException">error</prop>
+        </props>
+    </property>
+    <property name="exceptionAttribute" value="ex"/>
+</bean>
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>错误</title>
+</head>
+<body>
+<h1>error.html</h1>
+<p th:text="${ex}"></p>
+</body>
+</html>
 ```
 
 
@@ -7186,6 +7210,16 @@ SpringMVC提供了自定义的异常处理器SimpleMappingExceptionResolver，�
 ### 12.2、基于注解的异常处理
 
 ```java
+@ControllerAdvice
+public class ExceptionController {
+    // 设置要处理的异常信息
+    @ExceptionHandler(ArithmeticException.class)
+    public String handlerException(Throwable ex, Model model){
+        // ex表示控制器方法出现的异常
+        model.addAttribute("ex",ex);
+        return "error";
+    }
+}
 ```
 
 
