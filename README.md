@@ -7764,6 +7764,96 @@ private void processDispatchResult(HttpServletRequest request, HttpServletRespon
 
 ### 14.4、SpringMVC的执行流程
 
+1. 用户向服务器发送请求，请求被SpringMVC 前端控制器 DispatcherServlet捕获。
+2. DispatcherServlet对请求URL进行解析，得到请求资源标识符（URI），判断请求URI对应的映射：
+	- 不存在
+		1. 再判断是否配置了 mvc:default-servlet-handler
+		2. 如果没配置，则控制台报映射查找不到，客户端展示404错误
+		3. 如果有配置，则访问目标资源（一般为静态资源，如：JS,CSS,HTML），找不到客户端也会展示404错误
+	- 存在
+		1. 根据该URI，调用HandlerMapping获得该Handler配置的所有相关的对象（包括Handler对象以及 Handler对象对应的拦截器），最后以HandlerExecutionChain执行链对象的形式返回。
+		2. DispatcherServlet 根据获得的Handler，选择一个合适的HandlerAdapter。
+		3. 如果成功获得HandlerAdapter，此时将开始执行拦截器的preHandler(…)方法【正向】
+		4. 提取Request中的模型数据，填充Handler入参，开始执行Handler（Controller)方法，处理请求。 在填充Handler的入参过程中，根据你的配置，Spring将帮你做一些额外的工作：
+			- HttpMessageConveter： 将请求消息（如Json、xml等数据）转换成一个对象，将对象转换为指定 的响应信息
+			- 数据转换：对请求消息进行数据转换。如String转换成Integer、Double等
+			- 数据格式化：对请求消息进行数据格式化。 如将字符串转换成格式化数字或格式化日期等
+			- 数据验证： 验证数据的有效性（长度、格式等），验证结果存储到BindingResult或Error中
+		5. Handler执行完成后，向DispatcherServlet 返回一个ModelAndView对象。
+		6. 此时将开始执行拦截器的postHandle(...)方法【逆向】。
+		7. 根据返回的ModelAndView（此时会判断是否存在异常：如果存在异常，则执行 HandlerExceptionResolver进行异常处理）选择一个适合的ViewResolver进行视图解析，根据Model 和View，来渲染视图。
+		8. 渲染视图完毕执行拦截器的afterCompletion(…)方法【逆向】。
+		9. 将渲染结果返回给客户端。
+
+
+
+# 四、SSM整合案例
+
+## 1、ContextLoaderListener
+
+Spring提供了监听器ContextLoaderListener，实现ServletContextListener接口，可监听 ServletContext的状态，在web服务器的启动，读取Spring的配置文件，创建Spring的IOC容器。web 应用中必须在web.xml中配置
+
+```xml
+<listener>
+    <!--
+   配置Spring的监听器，在服务器启动时加载Spring的配置文件
+   Spring配置文件默认位置和名称：/WEB-INF/applicationContext.xml
+   可通过上下文参数自定义Spring配置文件的位置和名称
+  -->
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+
+<!--自定义Spring配置文件的位置和名称-->
+<context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:spring.xml</param-value>
+</context-param>
+```
+
+
+
+## 2、案例一
+
+### 2.1、准备工作
+
+##### ① 创建Maven Module
+
+##### ② 引入项目依赖
+
+##### ③ 创建表
+
+
+
+### 2.2、配置web.xml
+
+
+
+### 2.3、配置SpringMVC的配置文件
+
+
+
+### 2.4、搭建MyBatis环境
+
+##### ① 创建属性文件jdbc.properties
+
+
+
+##### ② 创建MyBatis核心配置文件mybatis-config.xml
+
+
+
+##### ③ 创建Mapper接口和映射文件
+
+
+
+
+
+
+
+
+
+
+
 
 
 ###

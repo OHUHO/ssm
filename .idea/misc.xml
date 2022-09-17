@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/mybatis_helloworld" />
+    <file type="web" url="file://$PROJECT_DIR$/spring_listener" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_ajax" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_annotation" />
     <file type="web" url="file://$PROJECT_DIR$/spring_mvc_demo" />
@@ -32,6 +33,7 @@
         <option value="$PROJECT_DIR$/spring_mvc_ajax/pom.xml" />
         <option value="$PROJECT_DIR$/spring_mvc_extension/pom.xml" />
         <option value="$PROJECT_DIR$/spring_mvc_annotation/pom.xml" />
+        <option value="$PROJECT_DIR$/spring_listener/pom.xml" />
       </list>
     </option>
   </component>
