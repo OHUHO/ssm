@@ -7380,7 +7380,41 @@ public String index(){
 
 ### 14.1、SpringMVC常用组件
 
+- DispatcherServlet：**前端控制器**，不需要工程师开发，由框架提供 
 
+	作用：统一处理请求和响应，整个流程控制的中心，由它调用其它组件处理用户的请求 
+
+- HandlerMapping：**处理器映射器**，不需要工程师开发，由框架提供
+
+	作用：根据请求的url、method等信息查找Handler，即控制器方法 
+
+- Handler：**处理器**，需要工程师开发 
+
+	作用：在DispatcherServlet的控制下Handler对具体的用户请求进行处理 
+
+- HandlerAdapter：**处理器适配器**，不需要工程师开发，由框架提供 
+
+	作用：通过HandlerAdapter对处理器（控制器方法）进行执行
+
+- ViewResolver：**视图解析器**，不需要工程师开发，由框架提供 
+
+	作用：进行视图解析，得到相应的视图，例如：ThymeleafView、InternalResourceView、 RedirectView 
+
+- View：**视图** 
+
+	作用：将模型数据通过页面展示给用户
+
+
+
+### 14.2、DispatcherServlet初始化过程
+
+DispatcherServlet 本质上是一个 Servlet，所以天然的遵循 Servlet 的生命周期。所以宏观上是 Servlet 生命周期来进行调度。
+
+
+
+
+
+### 14.3、DispatcherServlet调用组件处理请求
 
 
 
