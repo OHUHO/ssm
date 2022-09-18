@@ -10,5 +10,4 @@
 		select * from t_emp
 	</select>
 
-
 </mapper>

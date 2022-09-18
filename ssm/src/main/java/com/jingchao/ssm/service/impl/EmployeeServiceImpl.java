@@ -1,5 +1,7 @@
 package com.jingchao.ssm.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.jingchao.ssm.mapper.EmployeeMapper;
 import com.jingchao.ssm.pojo.Employee;
 import com.jingchao.ssm.service.EmployeeService;
@@ -20,5 +22,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> getAllEmployee() {
         return employeeMapper.getAllEmployee();
+    }
+
+    @Override
+    public PageInfo<Employee> getEmployeePage(Integer pageNum) {
+        // 开启分页功能
+        PageHelper.startPage(pageNum,5);
+        // 查询所有员工信息
+        List<Employee> list = employeeMapper.getAllEmployee();
+        // 获取分页相关数据
+        PageInfo<Employee> pageInfo = new PageInfo<>(list, 5);
+        return pageInfo;
     }
 }
