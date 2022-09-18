@@ -8137,7 +8137,7 @@ public interface EmployeeMapper {
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jingchao.ssm.mapper">
+<mapper namespace="com.jingchao.ssm.mapper.EmployeeMapper">
 
 </mapper>
 ```
@@ -8346,11 +8346,124 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 #### 2.6.1、员工列表
 
+##### ① 控制层
 
+```java
+@Controller
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @GetMapping("/employee")
+    public String getAllEmployee(Model model){
+        List<Employee> list = employeeService.getAllEmployee();
+        model.addAttribute("list",list);
+        return "employee_list";
+    }
+}
+```
+
+##### ② Service接口
+
+```java
+public interface EmployeeService {
+    /**
+     * 查询所有员工信息
+     * @return
+     */
+    List<Employee> getAllEmployee();
+}
+```
+
+##### ③ Service实现类
+
+```java
+@Service
+@Transactional
+public class EmployeeServiceImpl implements EmployeeService {
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
+
+    @Override
+    public List<Employee> getAllEmployee() {
+        return employeeMapper.getAllEmployee();
+    }
+}
+```
+
+##### ④ Mapper接口
+
+```java
+public interface EmployeeMapper {
+    /**
+     * 查询所有员工信息
+     * @return
+     */
+    List<Employee> getAllEmployee();
+}
+```
+
+##### ⑤ Mapper映射文件
+
+```xml
+<mapper namespace="com.jingchao.ssm.mapper.EmployeeMapper">
+
+	<!-- List<Employee> getAllEmployee(); -->
+	<select id="getAllEmployee" resultType="Employee">
+		select * from t_emp
+	</select>
+
+</mapper>
+```
+
+##### ⑥ 创建employee_list页面
 
 ```html
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>员工列表</title>
+    <link rel="stylesheet" th:href="@{/static/css/index_work.css}">
+</head>
+<body>
+<table>
+    <tr>
+        <th colspan="6">员工列表</th>
+    </tr>
+    <tr>
+        <th>流水号</th>
+        <th>员工姓名</th>
+        <th>年龄</th>
+        <th>性别</th>
+        <th>邮箱</th>
+        <th>操作</th>
+    </tr>
+    <tr th:each="employee,status : ${list}">
+        <td th:text="${status.count}"></td>
+        <td th:text="${employee.empName}"></td>
+        <td th:text="${employee.age}"></td>
+        <td th:text="${employee.gender}"></td>
+        <td th:text="${employee.email}"></td>
+        <td>
+            <a href="">删除</a>
+            <a href="">修改</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
 ```
+
+在index页面提供超链接
+
+```html
+<a th:href="@{/employee}">查询所有员工信息</a>
+```
+
+
 
 
 
