@@ -8469,9 +8469,97 @@ public interface EmployeeMapper {
 
 在员工列表的基础上实现分页功能
 
+##### ① 控制层
 
+```java
+@GetMapping("/employee/page/{pageNum}")
+public String getEmployeePage(@PathVariable("pageNum") Integer pageNum, Model model){
+    // 获取员工的分页信息
+    PageInfo<Employee> page = employeeService.getEmployeePage(pageNum);
+    // 将分页数据共享到请求域中
+    model.addAttribute("page",page);
+    return "employee_list_page";
+}
+```
 
-http://localhost:8084/employee/page/1
+##### ② Service接口
+
+```java
+/**
+ * 获取员工的分页信息
+ * @return
+ */
+PageInfo<Employee> getEmployeePage(Integer pageNum);
+```
+
+##### ③ Service实现类
+
+```java
+@Override
+public PageInfo<Employee> getEmployeePage(Integer pageNum) {
+    // 开启分页功能
+    PageHelper.startPage(pageNum,5);
+    // 查询所有员工信息
+    List<Employee> list = employeeMapper.getAllEmployee();
+    // 获取分页相关数据
+    PageInfo<Employee> pageInfo = new PageInfo<>(list, 5);
+    return pageInfo;
+}
+```
+
+##### ④ 创建employee_list_old页面
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>员工分页列表</title>
+    <link rel="stylesheet" th:href="@{/static/css/index_work.css}">
+</head>
+<body>
+<table>
+    <tr>
+        <th colspan="6">员工列表</th>
+    </tr>
+    <tr>
+        <th>流水号</th>
+        <th>员工姓名</th>
+        <th>年龄</th>
+        <th>性别</th>
+        <th>邮箱</th>
+        <th>操作</th>
+    </tr>
+    <tr th:each="employee,status : ${page.list}">
+        <td th:text="${status.count}"></td>
+        <td th:text="${employee.empName}"></td>
+        <td th:text="${employee.age}"></td>
+        <td th:text="${employee.gender}"></td>
+        <td th:text="${employee.email}"></td>
+        <td>
+            <a href="">删除</a>
+            <a href="">修改</a>
+        </td>
+    </tr>
+</table>
+<div style="text-align: center;">
+    <a th:if="${page.hasPreviousPage}" th:href="@{/employee/page/1}">首页</a>
+    <a th:if="${page.hasPreviousPage}" th:href="@{'/employee/page/'+${page.prePage}}">上一页</a>
+    <span th:each="num : ${page.navigatepageNums}">
+        <a th:if="${page.pageNum == num}" style="color: red" th:href="@{'/employee/page/'+${num}}" th:text="'['+${num}+']'"></a>
+        <a th:if="${page.pageNum != num}" th:href="@{'/employee/page/'+${num}}" th:text="${num}"></a>
+    </span>
+    <a th:if="${page.hasNextPage}" th:href="@{'/employee/page/'+${page.nextPage}}">下一页</a>
+    <a th:if="${page.hasNextPage}" th:href="@{'/employee/page/'+${page.pages}}">末页</a>
+</div>
+</body>
+</html>
+```
+
+##### ⑤ 效果预览
+
+| ![image-20220918115613384](C:\Users\Aubuary\AppData\Roaming\Typora\typora-user-images\image-20220918115613384.png) |
+| :----------------------------------------------------------: |
 
 
 
