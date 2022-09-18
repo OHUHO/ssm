@@ -7766,6 +7766,7 @@ private void processDispatchResult(HttpServletRequest request, HttpServletRespon
 
 1. 用户向服务器发送请求，请求被SpringMVC 前端控制器 DispatcherServlet捕获。
 2. DispatcherServlet对请求URL进行解析，得到请求资源标识符（URI），判断请求URI对应的映射：
+
 	- 不存在
 		1. 再判断是否配置了 mvc:default-servlet-handler
 		2. 如果没配置，则控制台报映射查找不到，客户端展示404错误
@@ -7980,11 +7981,112 @@ CREATE TABLE `t_emp` (
 ### 2.2、配置web.xml
 
 ```xml
+<!-- 配置Spring的编码过滤器 -->
+<filter>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+        <param-name>forceEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+
+<!-- 配置处理请求方式的过滤器 -->
+<filter>
+    <filter-name>HiddenHttpMethodFilter</filter-name>
+    <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>HiddenHttpMethodFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+
+<!-- 配置SpringMVC的前端控制器 -->
+<servlet>
+    <servlet-name>DispatcherServlet</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <!-- 设置SpringMVC配置文件自定义位置和名称 -->
+    <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:springmvc.xml</param-value>
+    </init-param>
+    <!-- 将DispatcherServlet的初始化时间提前到服务器启动时 -->
+    <load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+    <servlet-name>DispatcherServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+</servlet-mapping>
+
+
+<!-- 配置Spring的监听器,在服务器启动时加载Spring的配置文件 -->
+<listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+
+
+<!-- 设置Spring配置文件自定义的位置和名称 -->
+<context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:spring.xml</param-value>
+</context-param>
 ```
 
 
 
 ### 2.3、配置SpringMVC的配置文件
+
+```xml
+<!-- 扫描控制层组件 -->
+<context:component-scan base-package="com.jingchao.ssm.controller"/>
+
+
+<!--配置视图解析器-->
+<bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+    <property name="order" value="1"/>
+    <property name="characterEncoding" value="UTF-8"/>
+    <property name="templateEngine">
+        <bean class="org.thymeleaf.spring5.SpringTemplateEngine">
+            <property name="templateResolver">
+                <bean class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
+                    <!-- 视图前缀 -->
+                    <property name="prefix" value="/WEB-INF/templates/"/>
+                    <!-- 视图后缀 -->
+                    <property name="suffix" value=".html"/>
+                    <property name="templateMode" value="HTML5"/>
+                    <property name="characterEncoding" value="UTF-8" />
+                </bean>
+            </property>
+        </bean>
+    </property>
+</bean>
+
+
+<!-- 配置默认的servlet处理静态资源 -->
+<mvc:default-servlet-handler/>
+
+
+<!-- 开启mvc的注解驱动 -->
+<mvc:annotation-driven/>
+
+
+<!-- 配置视图控制器 -->
+<mvc:view-controller path="/" view-name="index"/>
+
+
+<!-- 配置文件上传解析器 -->
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+```
 
 
 
@@ -7992,7 +8094,12 @@ CREATE TABLE `t_emp` (
 
 ##### ① 创建属性文件jdbc.properties
 
-
+```properties
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/ssm?serverTimezone=UTC
+jdbc.username=root
+jdbc.password=123456
+```
 
 ##### ② 创建MyBatis核心配置文件mybatis-config.xml
 
@@ -8008,7 +8115,7 @@ CREATE TABLE `t_emp` (
 
 
 
-### 2.5、创建Spring的配置文件
+### 2.5、配置Spring的配置文件
 
 ```xml
 ```
