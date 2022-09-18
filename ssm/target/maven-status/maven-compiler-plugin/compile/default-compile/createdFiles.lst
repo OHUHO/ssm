@@ -1,1 +1,5 @@
+com\jingchao\ssm\pojo\Employee.class
+com\jingchao\ssm\service\EmployeeService.class
+com\jingchao\ssm\service\impl\EmployeeServiceImpl.class
 com\jingchao\ssm\controller\EmployeeController.class
+com\jingchao\ssm\mapper\EmployeeMapper.class

@@ -8103,55 +8103,256 @@ jdbc.password=123456
 
 ##### ② 创建MyBatis核心配置文件mybatis-config.xml
 
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
 
+<configuration>
+
+	<settings>
+		<!-- 将下划线映射为驼峰 -->
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<plugins>
+		<!-- 配置分页插件 -->
+		<plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+	</plugins>
+
+</configuration>
+```
 
 ##### ③ 创建Mapper接口和映射文件
 
+```java
+public interface EmployeeMapper {
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jingchao.ssm.mapper">
+
+</mapper>
+```
+
+##### ④ 创建日志文件log4j.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<param name="Encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %d{MM-dd HH:mm:ss,SSS}%m (%F:%L) \n" />
+		</layout>
+	</appender>
+	<logger name="java.sql">
+		<level value="debug" />
+	</logger>
+	<logger name="org.apache.ibatis">
+		<level value="info" />
+	</logger>
+	<root>
+		<level value="debug" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</log4j:configuration>
+```
 
 
-
-
-##### ④ 创建日志文件log4j.cml
 
 
 
 ### 2.5、配置Spring的配置文件
 
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- 扫描组件（除控制层） -->
+	<context:component-scan base-package="com.jingchao.ssm">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+	<!-- 引入jdbc.properties -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+
+	<!-- 配置数据源 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${jdbc.driver}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- 开启事务的注解驱动 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+	<!-- 配置SqlSessionFactoryBean，可以直接在Spring的IOC中获取SqlSessionFactory -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 设置MyBatis核心配置文件的路径 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"/>
+		<!-- 设置数据源 -->
+		<property name="dataSource" ref="dataSource"/>
+		<!-- 设置类型别名所对应的包 -->
+		<property name="typeAliasesPackage" value="com.jingchao.ssm.pojo"/>
+		<!-- 设置映射文件的位置，只有当映射文件和接口的包名不一致的情况才设置 -->
+		<!-- <property name="mapperLocations" value="classpath:mapper/*.xml"/> -->
+		<!-- 配置插件 -->
+		<!-- <property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageInterceptor"/>
+			</array>
+		</property> -->
+
+	</bean>
+
+	<!-- 配置mapper接口的扫描，可以将指定包下面的所有mapper接口通过SqlSession创建代理实现类对象，并将这些对象交给IOC容器管理 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.jingchao.ssm.mapper"/>
+	</bean>
+
+</beans>
 ```
 
 
 
 ### 2.6、测试功能
 
-##### ① 创建组件
-
 实体类Employee
 
 ```java
+package com.jingchao.ssm.pojo;
+
+public class Employee {
+
+    private Integer empId;
+
+    private String empName;
+
+    private Integer age;
+
+    private String gender;
+
+    private String email;
+
+    public Employee() {
+    }
+
+    public Employee(Integer empId, String empName, Integer age, String gender, String email) {
+        this.empId = empId;
+        this.empName = empName;
+        this.age = age;
+        this.gender = gender;
+        this.email = email;
+    }
+
+    public Integer getEmpId() {
+        return empId;
+    }
+
+    public void setEmpId(Integer empId) {
+        this.empId = empId;
+    }
+
+    public String getEmpName() {
+        return empName;
+    }
+
+    public void setEmpName(String empName) {
+        this.empName = empName;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "empId=" + empId +
+                ", empName='" + empName + '\'' +
+                ", age=" + age +
+                ", gender='" + gender + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+}
 ```
 
 创建控制层组件EmployeeController
 
 ```java
+@Controller
+public class EmployeeController {
+}
 ```
 
 创建接口EmployeeService
 
 ```java
+public interface EmployeeService {
+}
 ```
 
 创建实现类EmployeeServiceImpl
 
 ```java
+@Service
+@Transactional
+public class EmployeeServiceImpl implements EmployeeService {
+}
 ```
 
-##### ② 创建页面
+
+
+#### 2.6.1、员工列表
+
+
 
 ```html
+
 ```
 
-##### ③ 访问测试分页功能
+
 
 http://localhost:8084/employee/page/1
 
